@@ -5,9 +5,9 @@ using UnityEngine;
 
 public class Player : NetworkBehaviour
 {
-    private Camera _camera;
-
     private Character _character;
+    private Camera _camera;
+    private float _mouseSensitivity = 5;
 
     private void Awake()
     {
@@ -18,7 +18,17 @@ public class Player : NetworkBehaviour
     {
         if (!IsOwner) return;
 
+        Cursor.lockState = CursorLockMode.Locked;
+        name = $"{nameof(Player)} ({OwnerClientId})";
+        _camera.enabled = true;
         AttachCharacterServerRpc();
+    }
+
+    private void Update()
+    {
+        if (!IsOwner) return;
+
+        RotateCharacterServerRpc(new Vector3(-Input.GetAxis("Mouse Y") * _mouseSensitivity, Input.GetAxis("Mouse X") * _mouseSensitivity));
     }
 
     private void FixedUpdate()
@@ -40,6 +50,12 @@ public class Player : NetworkBehaviour
         _character = Instantiate(Characters.Basic, Vector3.up, Quaternion.identity);
         _character.NetworkObject.Spawn(true);
         _character.AttachPlayer(this);
+    }
+
+    [ServerRpc]
+    private void RotateCharacterServerRpc(Vector3 rotDir)
+    {
+        _character.Rotate(rotDir);
     }
 
     [ServerRpc]
