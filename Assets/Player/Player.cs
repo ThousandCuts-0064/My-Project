@@ -7,7 +7,9 @@ public class Player : NetworkBehaviour
 {
     private Character _character;
     private Camera _camera;
-    private float _mouseSensitivity = 5;
+    private float _mouseSensitivity = 3;
+    private Vector3 _lookRotation;
+    private bool _doJump;
 
     private void Awake()
     {
@@ -21,19 +23,24 @@ public class Player : NetworkBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         name = $"{nameof(Player)} ({OwnerClientId})";
         _camera.enabled = true;
+
         AttachCharacterServerRpc();
     }
 
     private void Update()
     {
-        if (!IsOwner) return;
+        if (!IsOwner || _character is null) return;
 
-        RotateCharacterServerRpc(new Vector3(-Input.GetAxis("Mouse Y") * _mouseSensitivity, Input.GetAxis("Mouse X") * _mouseSensitivity));
+        _lookRotation += new Vector3(-Input.GetAxisRaw("Mouse Y") * _mouseSensitivity, Input.GetAxisRaw("Mouse X") * _mouseSensitivity);
+
+        _character.SetLookRotation(_lookRotation);
+
+        _doJump = Input.GetKey(KeyCode.Space);
     }
 
     private void FixedUpdate()
     {
-        if (!IsOwner) return;
+        if (!IsOwner || _character is null) return;
 
         Vector3 moveDir = Vector3.zero;
         if (Input.GetKey(KeyCode.W)) moveDir.z += 1;
@@ -41,7 +48,13 @@ public class Player : NetworkBehaviour
         if (Input.GetKey(KeyCode.D)) moveDir.x += 1;
         if (Input.GetKey(KeyCode.A)) moveDir.x -= 1;
 
-        MoveCharacterServerRpc(moveDir);
+        _character.Move(moveDir);
+
+        if (_doJump)
+        {
+            _doJump = false;
+            _character.TryJump();
+        }
     }
 
     [ServerRpc]
@@ -50,17 +63,12 @@ public class Player : NetworkBehaviour
         _character = Instantiate(Characters.Basic, Vector3.up, Quaternion.identity);
         _character.NetworkObject.Spawn(true);
         _character.AttachPlayer(this);
+        SendAttachedCharacterToClientsClientRpc(_character.NetworkObjectId);
     }
 
-    [ServerRpc]
-    private void RotateCharacterServerRpc(Vector3 rotDir)
+    [ClientRpc]
+    private void SendAttachedCharacterToClientsClientRpc(ulong id)
     {
-        _character.Rotate(rotDir);
-    }
-
-    [ServerRpc]
-    private void MoveCharacterServerRpc(Vector3 moveDir)
-    {
-        _character.Move(moveDir);
+        _character = NetworkManager.SpawnManager.SpawnedObjects[id].GetComponent<Character>();
     }
 }
