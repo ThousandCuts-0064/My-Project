@@ -48,7 +48,7 @@ public class Player : NetworkBehaviour
         if (Input.GetKey(KeyCode.D)) moveDir.x += 1;
         if (Input.GetKey(KeyCode.A)) moveDir.x -= 1;
 
-        _character.Move(moveDir);
+        _character.TryMove(moveDir);
 
         if (_doJump)
         {

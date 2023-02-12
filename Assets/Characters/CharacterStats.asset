@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: CharacterStats
   m_EditorClassIdentifier: 
   <Health>k__BackingField: 100
+  <MovementSpeed>k__BackingField: 2
   <JumpStrength>k__BackingField: 5

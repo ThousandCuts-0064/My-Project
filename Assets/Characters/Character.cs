@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -22,12 +23,16 @@ public class Character : NetworkBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        if (!IsOwner) return;
+
         if (collision.GetContact(0).point.y < transform.position.y - _collider.bounds.extents.y / 10)
             _feetColliders.Add(collision.collider);
     }
 
     private void OnCollisionExit(Collision collision)
     {
+        if (!IsOwner) return;
+
         _feetColliders.Remove(collision.collider);
     }
 
@@ -49,17 +54,24 @@ public class Character : NetworkBehaviour
         transform.rotation = Quaternion.Euler(currRot.x, rotation.y, currRot.z);
     }
 
-    public void Move(Vector3 offset)
+    public bool TryMove(Vector3 direction)
     {
-        _rigidbody.MovePosition(transform.position + Quaternion.AngleAxis(transform.rotation.eulerAngles.y, transform.up) * offset.normalized * Time.fixedDeltaTime);
+        if (_feetColliders.Count == 0) return false;
+
+        if (new Vector2(_rigidbody.velocity.x, _rigidbody.velocity.z).sqrMagnitude > _stats.MovementSpeed * _stats.MovementSpeed) return false;
+
+        Vector3 relativeDir = Quaternion.AngleAxis(transform.rotation.eulerAngles.y, transform.up) * direction.normalized * _stats.MovementSpeed;
+        _rigidbody.velocity = new Vector3(relativeDir.x, _rigidbody.velocity.y, relativeDir.z);
+        return true;
     }
 
     public bool TryJump()
     {
         if (_feetColliders.Count == 0) return false;
 
-        _feetColliders.Clear();
-        _rigidbody.AddForce(transform.up * _stats.JumpStrength, ForceMode.Impulse);
+        Vector3 newVelocity = _rigidbody.velocity;
+        newVelocity.y = Math.Max(newVelocity.y, _stats.JumpStrength);
+        _rigidbody.velocity = newVelocity;
         return true;
     }
 }
