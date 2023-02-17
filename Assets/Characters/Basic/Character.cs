@@ -19,6 +19,16 @@ public class Character : NetworkBehaviour
         _rigidbody = GetComponent<Rigidbody>();
         _collider = GetComponent<Collider>();
         _playerSlot = transform.Find("PlayerSlot").GetComponent<NetworkSlot>();
+        _stats = Instantiate(_stats);
+        _stats.Resources[0].CurrentChanged += DeathOnDepletion;
+        _stats.Resources[0].MaxChanged += DeathOnDepletion;
+    }
+
+    private void FixedUpdate()
+    {
+        foreach (var resource in _stats.Resources)
+            resource.Current += resource.Generation * Time.fixedDeltaTime;
+        GameObject.Find("Canvas").transform.Find("TextDebug").GetComponent<TMPro.TMP_Text>().text = _stats.Resources[0].Current.ToString();
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -41,7 +51,8 @@ public class Character : NetworkBehaviour
         _player = player;
         _player.transform.SetParent(_playerSlot.Slot.transform);
         _player.transform.localPosition = Vector3.zero;
-        NetworkObject.ChangeOwnership(_player.OwnerClientId);
+        if (NetworkObject.OwnerClientId != _player.OwnerClientId)
+            NetworkObject.ChangeOwnership(_player.OwnerClientId);
         name = $"{nameof(Character)} ({_player.OwnerClientId})";
     }
 
@@ -73,5 +84,13 @@ public class Character : NetworkBehaviour
         newVelocity.y = Math.Max(newVelocity.y, _stats.JumpStrength);
         _rigidbody.velocity = newVelocity;
         return true;
+    }
+
+    public void SetUI(UICharacter uiCharacter) => uiCharacter.CharacterStats = _stats;
+
+    private void DeathOnDepletion(float value)
+    {
+        if (value < 0.001)
+            NetworkObject.Despawn();
     }
 }

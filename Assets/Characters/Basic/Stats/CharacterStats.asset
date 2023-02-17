@@ -12,6 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eda9252314b0b0048aca0cde50fa76c3, type: 3}
   m_Name: CharacterStats
   m_EditorClassIdentifier: 
-  <Health>k__BackingField: 100
-  <MovementSpeed>k__BackingField: 2
-  <JumpStrength>k__BackingField: 5
+  <Resources>k__BackingField:
+  - {fileID: 11400000, guid: 6525f02e54fb6464095669217a7ae290, type: 2}
+  <MovementSpeed>k__BackingField:
+    _baseValue: 1
+    _isPercentage: 0
+  <JumpStrength>k__BackingField:
+    _baseValue: 5
+    _isPercentage: 0

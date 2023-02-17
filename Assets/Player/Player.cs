@@ -7,13 +7,15 @@ public class Player : NetworkBehaviour
 {
     private Character _character;
     private Camera _camera;
-    private float _mouseSensitivity = 3;
+    private UICharacter _uiCharacter;
     private Vector3 _lookRotation;
+    private float _mouseSensitivity = 3;
     private bool _doJump;
 
     private void Awake()
     {
         _camera = GetComponent<Camera>();
+        _uiCharacter = FindObjectOfType<Canvas>().GetComponentInChildren<UICharacter>(true);
     }
 
     private void Start()
@@ -31,11 +33,28 @@ public class Player : NetworkBehaviour
     {
         if (!IsOwner || _character is null) return;
 
-        _lookRotation += new Vector3(-Input.GetAxisRaw("Mouse Y") * _mouseSensitivity, Input.GetAxisRaw("Mouse X") * _mouseSensitivity);
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            if (Cursor.lockState == CursorLockMode.Locked)
+            {
+                Cursor.lockState = CursorLockMode.None;
+                _uiCharacter.PanelsSetActive(true);
+            }
+            else
+            {
+                Cursor.lockState = CursorLockMode.Locked;
+                _uiCharacter.PanelsSetActive(false);
+            }
+        }
 
-        _character.SetLookRotation(_lookRotation);
+        if (Cursor.lockState == CursorLockMode.Locked)
+        {
+            _lookRotation += new Vector3(-Input.GetAxisRaw("Mouse Y") * _mouseSensitivity, Input.GetAxisRaw("Mouse X") * _mouseSensitivity);
 
-        _doJump = Input.GetKey(KeyCode.Space);
+            _character.SetLookRotation(_lookRotation);
+
+            _doJump = Input.GetKey(KeyCode.Space);
+        }
     }
 
     private void FixedUpdate()
@@ -61,6 +80,8 @@ public class Player : NetworkBehaviour
     private void AttachCharacterServerRpc()
     {
         _character = Instantiate(Characters.Basic, Vector3.up, Quaternion.identity);
+        _character.SetUI(_uiCharacter);
+
         _character.NetworkObject.Spawn(true);
         _character.AttachPlayer(this);
         SendAttachedCharacterToClientsClientRpc(_character.NetworkObjectId);
@@ -70,5 +91,6 @@ public class Player : NetworkBehaviour
     private void SendAttachedCharacterToClientsClientRpc(ulong id)
     {
         _character = NetworkManager.SpawnManager.SpawnedObjects[id].GetComponent<Character>();
+        _character.SetUI(_uiCharacter);
     }
 }
