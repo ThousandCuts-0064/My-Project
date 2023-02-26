@@ -8,6 +8,7 @@ public class Character : NetworkBehaviour
 {
     private List<Collider> _feetColliders;
     private Player _player;
+    private UICharacter _uiCharacter;
     private Rigidbody _rigidbody;
     private Collider _collider;
     private NetworkSlot _playerSlot;
@@ -86,7 +87,12 @@ public class Character : NetworkBehaviour
         return true;
     }
 
-    public void SetUI(UICharacter uiCharacter) => uiCharacter.CharacterStats = _stats;
+    public void SetUI(UICharacter uiCharacter)
+    {
+        _uiCharacter = uiCharacter;
+        _uiCharacter.gameObject.SetActive(true);
+        _uiCharacter.CharacterStats = _stats;
+    }
 
     private void DeathOnDepletion(float value)
     {

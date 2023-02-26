@@ -17,6 +17,7 @@ public class UICharacter : MonoBehaviour
     {
         yield return new WaitForEndOfFrame();
         GetComponent<VerticalLayoutGroup>().enabled = false;
+        _panels.SetActive(false);
         gameObject.SetActive(false);
     }
 
