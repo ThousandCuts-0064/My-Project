@@ -6,9 +6,9 @@ public class Projectiles : MonoBehaviour
 {
     private static Projectiles _projectiles;
 
-    [SerializeField] private Projectile _projectile;
+    [SerializeField] private Projectile _basic;
 
-    public static Projectile Projectile => _projectiles._projectile;
+    public static Projectile Basic => _projectiles._basic;
 
     private void Awake()
     {

@@ -1,10 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 
-public abstract class Resource : ScriptableObject, IReadOnlyResource
+[Serializable]
+public abstract class Resource : IReadOnlyResource
 {
+    [SerializeReference, HideInInspector, SuppressMessage("CodeQuality", "IDE0052:Remove unread private members", Justification = "Used for serialization")]
+    private string _name;
     [SerializeField] private float _max;
     [SerializeField] private float _current;
     [SerializeField] private float _generation;
@@ -48,4 +52,6 @@ public abstract class Resource : ScriptableObject, IReadOnlyResource
     public event Action<float> MaxChanged;
     public event Action<float> CurrentChanged;
     public event Action<float> GenerationChanged;
+
+    public Resource() => _name = GetType().ToString();
 }

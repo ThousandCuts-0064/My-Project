@@ -20,6 +20,7 @@ public class Character : NetworkBehaviour
         _rigidbody = GetComponent<Rigidbody>();
         _collider = GetComponent<Collider>();
         _playerSlot = transform.Find("PlayerSlot").GetComponent<NetworkSlot>();
+
         _stats = Instantiate(_stats);
         _stats.Resources[0].CurrentChanged += DeathOnDepletion;
         _stats.Resources[0].MaxChanged += DeathOnDepletion;
@@ -27,9 +28,10 @@ public class Character : NetworkBehaviour
 
     private void FixedUpdate()
     {
-        foreach (var resource in _stats.Resources)
-            resource.Current += resource.Generation * Time.fixedDeltaTime;
         GameObject.Find("Canvas").transform.Find("TextDebug").GetComponent<TMPro.TMP_Text>().text = _stats.Resources[0].Current.ToString();
+
+        if (IsServer)
+            _stats.FixedUpdate();
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -55,6 +57,13 @@ public class Character : NetworkBehaviour
         if (NetworkObject.OwnerClientId != _player.OwnerClientId)
             NetworkObject.ChangeOwnership(_player.OwnerClientId);
         name = $"{nameof(Character)} ({_player.OwnerClientId})";
+    }
+
+    public void SetUI(UICharacter uiCharacter)
+    {
+        _uiCharacter = uiCharacter;
+        _uiCharacter.gameObject.SetActive(true);
+        _uiCharacter.CharacterStats = _stats;
     }
 
     public void SetLookRotation(Vector3 rotation)
@@ -87,11 +96,20 @@ public class Character : NetworkBehaviour
         return true;
     }
 
-    public void SetUI(UICharacter uiCharacter)
+    [ServerRpc]
+    public void Fire1ServerRPC(ulong idShooter)
     {
-        _uiCharacter = uiCharacter;
-        _uiCharacter.gameObject.SetActive(true);
-        _uiCharacter.CharacterStats = _stats;
+        Projectile projectile = Instantiate(Projectiles.Basic, _playerSlot.transform.position, _playerSlot.transform.rotation);
+        Collider projCollider = projectile.GetComponent<Collider>();
+        NetworkObject shooter = NetworkManager.SpawnManager.SpawnedObjects[idShooter];
+        var shooterColliders = shooter.GetComponentsInChildren<Collider>();
+        for (int i = 0; i < shooterColliders.Length; i++)
+            Physics.IgnoreCollision(projCollider, shooterColliders[i]);
+        projectile.NetworkObject.Spawn();
+
+        projectile.Config(5, 10);
+        Rigidbody rigidbody = projectile.GetComponent<Rigidbody>();
+        rigidbody.velocity = 50 * projectile.transform.forward;
     }
 
     private void DeathOnDepletion(float value)

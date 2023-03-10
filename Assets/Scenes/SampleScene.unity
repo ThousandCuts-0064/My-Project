@@ -669,7 +669,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 416b475421609294db49bc7f98a0e566, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _projectile: {fileID: 3804105326392099305, guid: 832d73f742af6374ba0f034bc435e345, type: 3}
+  _basic: {fileID: 3804105326392099305, guid: 832d73f742af6374ba0f034bc435e345, type: 3}
 --- !u!1 &223974226
 GameObject:
   m_ObjectHideFlags: 0
@@ -1040,6 +1040,11 @@ MonoBehaviour:
     - Override: 0
       Prefab: {fileID: 8219074855093920075, guid: 8472dae5af328da4780a3d6750b6c1c1, type: 3}
       SourcePrefabToOverride: {fileID: 0}
+      SourceHashToOverride: 0
+      OverridingTargetPrefab: {fileID: 0}
+    - Override: 0
+      Prefab: {fileID: 7484300911413009487, guid: 832d73f742af6374ba0f034bc435e345, type: 3}
+      SourcePrefabToOverride: {fileID: 7484300911413009487, guid: 832d73f742af6374ba0f034bc435e345, type: 3}
       SourceHashToOverride: 0
       OverridingTargetPrefab: {fileID: 0}
     TickRate: 30

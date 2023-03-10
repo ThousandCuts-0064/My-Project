@@ -12,11 +12,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eda9252314b0b0048aca0cde50fa76c3, type: 3}
   m_Name: CharacterStats
   m_EditorClassIdentifier: 
-  <Resources>k__BackingField:
-  - {fileID: 11400000, guid: 6525f02e54fb6464095669217a7ae290, type: 2}
+  _resources:
+  - rid: 6546092221844946963
+  - rid: 6546092221844946964
   <MovementSpeed>k__BackingField:
-    _baseValue: 1
+    _baseValue: 5
     _isPercentage: 0
   <JumpStrength>k__BackingField:
     _baseValue: 5
     _isPercentage: 0
+  references:
+    version: 2
+    RefIds:
+    - rid: 6546092221844946963
+      type: {class: Health, ns: , asm: Stats}
+      data:
+        _name: Health
+        _max: 100
+        _current: 50
+        _generation: 1
+    - rid: 6546092221844946964
+      type: {class: Barrier, ns: , asm: Stats}
+      data:
+        _name: Barrier
+        _max: 100
+        _current: 75
+        _generation: -0.25
+        _effectiveness: 50

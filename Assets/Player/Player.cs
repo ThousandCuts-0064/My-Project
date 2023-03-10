@@ -11,6 +11,7 @@ public class Player : NetworkBehaviour
     private Vector3 _lookRotation;
     private float _mouseSensitivity = 3;
     private bool _doJump;
+    private bool _doFire1;
 
     private void Awake()
     {
@@ -54,6 +55,9 @@ public class Player : NetworkBehaviour
             _character.SetLookRotation(_lookRotation);
 
             _doJump = Input.GetKey(KeyCode.Space);
+
+            if (Input.GetKeyDown(KeyCode.Mouse0))
+                _doFire1 = true;
         }
     }
 
@@ -73,6 +77,12 @@ public class Player : NetworkBehaviour
         {
             _doJump = false;
             _character.TryJump();
+        }
+
+        if (_doFire1)
+        {
+            _doFire1 = false;
+            _character.Fire1ServerRPC(_character.NetworkObjectId);
         }
     }
 
