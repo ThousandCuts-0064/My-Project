@@ -5,15 +5,16 @@ using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 
 [Serializable]
-public abstract class Resource : IReadOnlyResource
+public class Resource : IReadOnlyResource
 {
-    [SerializeReference, HideInInspector, SuppressMessage("CodeQuality", "IDE0052:Remove unread private members", Justification = "Used for serialization")]
-    private string _name;
+#if UNITY_EDITOR
+    [SuppressMessage("CodeQuality", "IDE0052:Remove unread private members", Justification = "Used for serialization")]
+    [SerializeField, HideInInspector] private string _name;
+#endif
     [SerializeField] private float _max;
     [SerializeField] private float _current;
     [SerializeField] private float _generation;
-
-    public abstract Color Color { get; }
+    [field: SerializeField, HideInInspector] public Element Element { get; private set; } 
 
     public float Max
     {
@@ -53,5 +54,11 @@ public abstract class Resource : IReadOnlyResource
     public event Action<float> CurrentChanged;
     public event Action<float> GenerationChanged;
 
-    public Resource() => _name = GetType().ToString();
+    public Resource(Element element)
+    {
+        Element = element;
+#if UNITY_EDITOR
+        _name = element.ToString();
+#endif
+    }
 }

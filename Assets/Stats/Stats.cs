@@ -4,17 +4,22 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 using System.Linq;
+using Unity.Netcode;
 
-[CreateAssetMenu(fileName = nameof(Stats), menuName = nameof(ScriptableObject) + "/" + nameof(Stats) + "/" + nameof(Stats))]
-public class Stats : ScriptableObject, IReadOnlyStats
+public class Stats : NetworkBehaviour, IReadOnlyStats
 {
-    [SerializeReference] private List<Resource> _resources;
+    [SerializeReference] private List<Resource> _resources; 
     public IReadOnlyList<IReadOnlyResource> Resources => _resources;
 
-    public void FixedUpdate()
+    private void FixedUpdate()
     {
         foreach (var resource in _resources)
             resource.Current += resource.Generation * Time.fixedDeltaTime;
+    }
+
+    public void TakeDamage(Element element, float damage)
+    {
+
     }
 
 #if UNITY_EDITOR
@@ -22,19 +27,21 @@ public class Stats : ScriptableObject, IReadOnlyStats
     [CustomEditor(typeof(Stats), true)]
     protected class Editor : UnityEditor.Editor
     {
-        private static readonly Type[] _resourceTypes;
-        private int _selectedResourceTypeIndex;
-
-        static Editor() => _resourceTypes = typeof(Resource).Assembly.GetTypes().Where(t => t.IsSubclassOf(typeof(Resource))).ToArray();
+        private int _selectedElementIndex;
 
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
 
-            _selectedResourceTypeIndex = EditorGUILayout.Popup(_selectedResourceTypeIndex, _resourceTypes.Select(t => t.Name).ToArray());
+            GUILayout.Label("\nNew " + nameof(Resource) + ":");
 
-            if (GUILayout.Button("Add"))
-                ((Stats)target)._resources.Add((Resource)Activator.CreateInstance(_resourceTypes[_selectedResourceTypeIndex]));
+            _selectedElementIndex = EditorGUILayout.Popup(_selectedElementIndex, Enum.GetNames(typeof(Element)));
+
+            if (_selectedElementIndex != 0)
+            {
+                ((Stats)target)._resources.Add(new Resource((Element)_selectedElementIndex));
+                _selectedElementIndex = 0;
+            }
         }
     }
 

@@ -4,34 +4,32 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
+[RequireComponent(typeof(CharacterStats))]
 public class Character : NetworkBehaviour
 {
     private List<Collider> _feetColliders;
     private Player _player;
+    private CharacterStats _stats;
     private UICharacter _uiCharacter;
     private Rigidbody _rigidbody;
     private Collider _collider;
     private NetworkSlot _playerSlot;
-    [SerializeField] private CharacterStats _stats;
 
     private void Awake()
     {
         _feetColliders = new List<Collider>();
+        _stats = GetComponent<CharacterStats>();
         _rigidbody = GetComponent<Rigidbody>();
         _collider = GetComponent<Collider>();
         _playerSlot = transform.Find("PlayerSlot").GetComponent<NetworkSlot>();
 
-        _stats = Instantiate(_stats);
         _stats.Resources[0].CurrentChanged += DeathOnDepletion;
         _stats.Resources[0].MaxChanged += DeathOnDepletion;
     }
 
     private void FixedUpdate()
     {
-        GameObject.Find("Canvas").transform.Find("TextDebug").GetComponent<TMPro.TMP_Text>().text = _stats.Resources[0].Current.ToString();
-
-        if (IsServer)
-            _stats.FixedUpdate();
+        GameObject.Find("Canvas").transform.Find("TextDebug").GetComponent<TMPro.TMP_Text>().text = _stats.Resources[0].Current.ToString();;
     }
 
     private void OnCollisionEnter(Collision collision)

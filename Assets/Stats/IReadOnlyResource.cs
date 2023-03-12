@@ -5,7 +5,7 @@ using UnityEngine;
 
 public interface IReadOnlyResource
 {
-    public Color Color { get; }
+    public Element Element { get; }
     public float Max { get; }
     public float Current { get; }
     public float Generation { get; }

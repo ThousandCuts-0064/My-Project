@@ -30,6 +30,16 @@ public class Projectile : NetworkBehaviour
             NetworkObject.Despawn();
     }
 
+    private void OnCollisionEnter(Collision collision)
+    {
+        if (!IsServer) return;
+
+        if (collision.gameObject.TryGetComponent(out Stats readOnlyStats))
+        {
+            
+        }
+    }
+
     public void Config(float lifeSeconds, float damage)
     {
         LifeSeconds = lifeSeconds;
