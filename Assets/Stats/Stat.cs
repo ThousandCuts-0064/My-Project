@@ -1,17 +1,19 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using UnityEngine;
 
 [Serializable]
-public class Stat
+public class Stat : IReadOnlyStat
 {
-    [SerializeField] private float _baseValue;
-    [SerializeField] private bool _isPercentage;
     private readonly HashSet<Stat> _flatMods;
     private readonly HashSet<Stat> _multMods;
     private readonly HashSet<Stat> _modOfOthers;
-    public float Value => _baseValue;
+    [field: SerializeField] public float BaseValue { get; }
+    public float Value => BaseValue;
+
+    public Stat(float baseValue) => BaseValue = baseValue;
 
     public void AddModFlat(Stat stat)
     {
@@ -24,6 +26,4 @@ public class Stat
         _multMods.Add(stat);
         stat._modOfOthers.Add(this);
     }
-
-    public static implicit operator float(Stat stat) => stat.Value;
 }

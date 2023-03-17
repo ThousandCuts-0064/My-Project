@@ -9,16 +9,16 @@ using static ElementType;
 
 public static class ElementExt
 {
-    private static readonly IReadOnlyDictionary<Element, Element> _combinationTable = new Dictionary<Element, Element>()
+    private static readonly IReadOnlyDictionary<ElementCombo, Element> _combinationTable = new Dictionary<ElementCombo, Element>()
     {
-        { Earth | Air   , Sand      },
-        { Earth | Water , Plant     },
-        { Earth | Fire  , Sand      },
-        { Water | Air   , Ice       },
-        { Fire  | Air   , Lightning },
+        { (Earth , Air  ), Sand      },
+        { (Earth , Water), Plant     },
+        { (Earth , Fire ), Sand      },
+        { (Water , Air  ), Ice       },
+        { (Fire  , Air  ), Lightning },
     };
 
-    public static bool TryCombine(this Element e1, Element e2, out Element eOut) => _combinationTable.TryGetValue(e1 | e2, out eOut);
+    public static bool TryCombine(this Element e1, Element e2, out Element eOut) => _combinationTable.TryGetValue((e1 , e2), out eOut);
 
     public static ElementType GetState(this Element element) => element switch
     {
@@ -58,29 +58,29 @@ public static class ElementExt
         return new Color32(color.R, color.G, color.B, color.A);
     }
 
-    //private readonly struct ElementCombo
-    //{
-    //    public readonly Element E1;
-    //    public readonly Element E2;
+    private readonly struct ElementCombo
+    {
+        public readonly Element E1;
+        public readonly Element E2;
 
-    //    public ElementCombo(Element e1, Element e2)
-    //    {
-    //        E1 = e1;
-    //        E2 = e2;
-    //    }
+        public ElementCombo(Element e1, Element e2)
+        {
+            E1 = e1;
+            E2 = e2;
+        }
 
-    //    public override bool Equals(object obj) => obj is ElementCombo ec && ec == this;
+        public override bool Equals(object obj) => obj is ElementCombo ec && ec == this;
 
-    //    public override int GetHashCode() => (int)(E1 | E2);
+        public override int GetHashCode() => (int)(E1 | E2);
 
-    //    public override string ToString() => $"{{{E1}, {E2}}}";
+        public override string ToString() => $"{{{E1}, {E2}}}";
 
-    //    public static implicit operator ElementCombo((Element e1, Element e2) es) => new(es.e1, es.e2);
+        public static implicit operator ElementCombo((Element e1, Element e2) es) => new(es.e1, es.e2);
 
-    //    public static bool operator ==(ElementCombo l, ElementCombo r) =>
-    //        l.E1 == r.E1 && l.E2 == r.E2 || 
-    //        l.E1 == r.E2 && l.E2 == r.E2;
+        public static bool operator ==(ElementCombo l, ElementCombo r) =>
+            l.E1 == r.E1 && l.E2 == r.E2 ||
+            l.E1 == r.E2 && l.E2 == r.E2;
 
-    //    public static bool operator !=(ElementCombo l, ElementCombo r) => !(l == r);
-    //}
+        public static bool operator !=(ElementCombo l, ElementCombo r) => !(l == r);
+    }
 }

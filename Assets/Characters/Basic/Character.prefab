@@ -317,23 +317,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eda9252314b0b0048aca0cde50fa76c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _resources:
-  - rid: 6170313289212100623
-  _resources2: []
-  <MovementSpeed>k__BackingField:
-    _baseValue: 0
-    _isPercentage: 0
-  <JumpStrength>k__BackingField:
-    _baseValue: 0
-    _isPercentage: 0
+  _externals:
+  - rid: 6546092320719896588
+  _internals: []
+  _embedded:
+  - rid: 6546092320719896583
+  - rid: 6546092320719896584
+  _statusEffects: []
+  _tempStatusEffects: []
   references:
     version: 2
     RefIds:
-    - rid: 6170313289212100623
+    - rid: 6546092320719896583
       type: {class: Resource, ns: , asm: Stats}
       data:
-        _name: Blood
+        _name: Water
         _max: 100
         _current: 50
-        _generation: 1
-        <Element>k__BackingField: 5
+        <Element>k__BackingField: 2
+    - rid: 6546092320719896584
+      type: {class: Resource, ns: , asm: Stats}
+      data:
+        _name: Air
+        _max: 10
+        _current: 10
+        <Element>k__BackingField: 3
+    - rid: 6546092320719896588
+      type: {class: Resource, ns: , asm: Stats}
+      data:
+        _name: Meat
+        _max: 50
+        _current: 50
+        <Element>k__BackingField: 21

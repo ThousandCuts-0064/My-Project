@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
-[RequireComponent(typeof(CharacterStats))]
+[RequireComponent(typeof(CharacterStats)), DisallowMultipleComponent]
 public class Character : NetworkBehaviour
 {
     private List<Collider> _feetColliders;
@@ -22,14 +22,11 @@ public class Character : NetworkBehaviour
         _rigidbody = GetComponent<Rigidbody>();
         _collider = GetComponent<Collider>();
         _playerSlot = transform.Find("PlayerSlot").GetComponent<NetworkSlot>();
-
-        _stats.Resources[0].CurrentChanged += DeathOnDepletion;
-        _stats.Resources[0].MaxChanged += DeathOnDepletion;
     }
 
     private void FixedUpdate()
     {
-        GameObject.Find("Canvas").transform.Find("TextDebug").GetComponent<TMPro.TMP_Text>().text = _stats.Resources[0].Current.ToString();;
+
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -77,9 +74,9 @@ public class Character : NetworkBehaviour
     {
         if (_feetColliders.Count == 0) return false;
 
-        if (new Vector2(_rigidbody.velocity.x, _rigidbody.velocity.z).sqrMagnitude > _stats.MovementSpeed * _stats.MovementSpeed) return false;
+        if (new Vector2(_rigidbody.velocity.x, _rigidbody.velocity.z).sqrMagnitude > _stats.MovementSpeed.Value * _stats.MovementSpeed.Value) return false;
 
-        Vector3 relativeDir = Quaternion.AngleAxis(transform.rotation.eulerAngles.y, transform.up) * direction.normalized * _stats.MovementSpeed;
+        Vector3 relativeDir = Quaternion.AngleAxis(transform.rotation.eulerAngles.y, transform.up) * direction.normalized * _stats.MovementSpeed.Value;
         _rigidbody.velocity = new Vector3(relativeDir.x, _rigidbody.velocity.y, relativeDir.z);
         return true;
     }
@@ -89,7 +86,7 @@ public class Character : NetworkBehaviour
         if (_feetColliders.Count == 0) return false;
 
         Vector3 newVelocity = _rigidbody.velocity;
-        newVelocity.y = Math.Max(newVelocity.y, _stats.JumpStrength);
+        newVelocity.y = Math.Max(newVelocity.y, _stats.JumpStrength.Value);
         _rigidbody.velocity = newVelocity;
         return true;
     }

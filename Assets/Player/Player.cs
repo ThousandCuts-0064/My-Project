@@ -3,15 +3,16 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
+[DisallowMultipleComponent]
 public class Player : NetworkBehaviour
 {
     private Character _character;
     private Camera _camera;
     private UICharacter _uiCharacter;
     private Vector3 _lookRotation;
-    private float _mouseSensitivity = 3;
     private bool _doJump;
     private bool _doFire1;
+    [SerializeField, Range(0, 5)]private float _mouseSensitivity = 3;
 
     private void Awake()
     {

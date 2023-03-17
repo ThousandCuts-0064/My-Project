@@ -6,7 +6,7 @@ using UnityEngine.UI;
 public class UICharacter : MonoBehaviour
 {
     private GameObject _panels;
-    public CharacterStats CharacterStats { get; set; }
+    public IReadOnlyCharacterStats CharacterStats { get; set; }
 
     private void Awake()
     {

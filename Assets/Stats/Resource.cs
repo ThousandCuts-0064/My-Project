@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 
 [Serializable]
-public class Resource : IReadOnlyResource
+internal class Resource : IReadOnlyResource
 {
 #if UNITY_EDITOR
     [SuppressMessage("CodeQuality", "IDE0052:Remove unread private members", Justification = "Used for serialization")]
@@ -13,7 +13,6 @@ public class Resource : IReadOnlyResource
 #endif
     [SerializeField] private float _max;
     [SerializeField] private float _current;
-    [SerializeField] private float _generation;
     [field: SerializeField, HideInInspector] public Element Element { get; private set; } 
 
     public float Max
@@ -40,25 +39,25 @@ public class Resource : IReadOnlyResource
         }
     }
 
-    public float Generation 
-    {
-        get => _generation;
-        set
-        {
-            _generation = value;
-            GenerationChanged?.Invoke(_generation);
-        }
-    }
-
     public event Action<float> MaxChanged;
     public event Action<float> CurrentChanged;
-    public event Action<float> GenerationChanged;
 
     public Resource(Element element)
     {
         Element = element;
 #if UNITY_EDITOR
         _name = element.ToString();
+        CurrentChanged += curr => SetName();
+        MaxChanged += max => SetName();
+
+        void SetName() => _name = Utility.ClearedStringBuilder
+            .Append(element)
+            .Append(" (")
+            .Append(Current)
+            .Append("/")
+            .Append(Max)
+            .Append(" )")
+            .ToString();
 #endif
     }
 }
