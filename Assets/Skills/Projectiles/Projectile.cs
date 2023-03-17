@@ -34,10 +34,8 @@ public class Projectile : NetworkBehaviour
     {
         if (!IsServer) return;
 
-        if (collision.gameObject.TryGetComponent(out Stats readOnlyStats))
-        {
-            
-        }
+        if (collision.gameObject.TryGetComponent(out Stats stats))
+            stats.TakeDamage(Element.Fire, 10);
     }
 
     public void Config(float lifeSeconds, float damage)

@@ -8,16 +8,21 @@ using Unity.Netcode;
 using System.Reflection;
 
 [DisallowMultipleComponent]
-public class Stats : NetworkBehaviour, IReadOnlyStats
+public class Stats : NetworkBehaviour, IReadOnlyStats, IInternalStats
 {
     [SerializeReference] private List<Resource> _externals;
     [SerializeReference] private List<Resource> _internals;
     [SerializeReference] private List<Resource> _embedded;
     [SerializeReference] private List<StatusEffect> _statusEffects;
     [SerializeReference] private List<StatusEffect> _temporaryStatusEffects;
+
     public IReadOnlyList<IReadOnlyResource> Externals => _externals;
     public IReadOnlyList<IReadOnlyResource> Internals => _externals;
     public IReadOnlyList<IReadOnlyResource> Embedded => _externals;
+
+    IReadOnlyList<Resource> IInternalStats.Externals => _externals;
+    IReadOnlyList<Resource> IInternalStats.Internals => _internals;
+    IReadOnlyList<Resource> IInternalStats.Embedded => _embedded;
 
     private void Awake()
     {
@@ -33,7 +38,7 @@ public class Stats : NetworkBehaviour, IReadOnlyStats
         (statusEffect.IsTemporary 
             ? _temporaryStatusEffects 
             : _statusEffects)
-                .Add(statusEffect);
+            .Add(statusEffect);
 
         statusEffect.Start();
     }

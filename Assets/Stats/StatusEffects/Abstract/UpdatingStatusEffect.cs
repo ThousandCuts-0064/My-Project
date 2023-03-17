@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [Serializable]
-internal abstract class UpdatingStatusEffect<T> : GenericStatusEffect<T> where T : Stats
+internal abstract class UpdatingStatusEffect<T> : GenericStatusEffect<T> where T : IInternalStats
 {
     protected UpdatingStatusEffect(T stats) : base(stats) { }
 

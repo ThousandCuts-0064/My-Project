@@ -6,7 +6,7 @@ using UnityEngine;
 [Serializable]
 public abstract class StatusEffect
 {
-    public virtual bool IsTemporary => false;
+    internal virtual bool IsTemporary => false;
 
     internal abstract void Start();
     internal abstract void Stop();
