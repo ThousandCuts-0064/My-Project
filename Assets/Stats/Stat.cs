@@ -10,7 +10,7 @@ public class Stat : IReadOnlyStat
     private readonly HashSet<Stat> _flatMods;
     private readonly HashSet<Stat> _multMods;
     private readonly HashSet<Stat> _modOfOthers;
-    [field: SerializeField] public float BaseValue { get; }
+    [field: SerializeField] public float BaseValue { get; private set; }
     public float Value => BaseValue;
 
     public Stat(float baseValue) => BaseValue = baseValue;

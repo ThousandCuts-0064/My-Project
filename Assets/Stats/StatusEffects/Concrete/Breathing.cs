@@ -1,15 +1,23 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-internal class Breathing : UpdatingStatusEffect<IInternalStats>
+[Serializable]
+internal class Breathing : UpdatingStatusEffect, IElementalStatusEffect
 {
-    public Breathing(CharacterStats stats) : base(stats) { }
+    private Resource _resource;
+    [field: SerializeField] public Element Element { get; set; }
+
+    internal override void Start(Stats stats)
+    {
+        base.Start(stats);
+        _resource = ResourceOfElement(stats.EmbeddedInternal, Element);
+    }
 
     protected override void FixedUpdate()
     {
-        var res = Stats.Embedded.First(r => r.Element == Element.Air);
-        res.Current += res.Max / 10;
+        _resource.Current += _resource.Max / 10;
     }
 }

@@ -24,11 +24,6 @@ public class Character : NetworkBehaviour
         _playerSlot = transform.Find("PlayerSlot").GetComponent<NetworkSlot>();
     }
 
-    private void FixedUpdate()
-    {
-
-    }
-
     private void OnCollisionEnter(Collision collision)
     {
         if (!IsOwner) return;

@@ -8,7 +8,7 @@ using Unity.Netcode;
 using System.Reflection;
 
 [DisallowMultipleComponent]
-public class Stats : NetworkBehaviour, IReadOnlyStats, IInternalStats
+public class Stats : NetworkBehaviour, IReadOnlyStats
 {
     [SerializeReference] private List<Resource> _externals;
     [SerializeReference] private List<Resource> _internals;
@@ -16,33 +16,33 @@ public class Stats : NetworkBehaviour, IReadOnlyStats, IInternalStats
     [SerializeReference] private List<StatusEffect> _statusEffects;
     [SerializeReference] private List<StatusEffect> _temporaryStatusEffects;
 
+    internal IReadOnlyList<Resource> ExternalsInternal => _externals;
+    internal IReadOnlyList<Resource> InternalsInternal => _externals;
+    internal IReadOnlyList<Resource> EmbeddedInternal => _externals;
+
     public IReadOnlyList<IReadOnlyResource> Externals => _externals;
     public IReadOnlyList<IReadOnlyResource> Internals => _externals;
     public IReadOnlyList<IReadOnlyResource> Embedded => _externals;
 
-    IReadOnlyList<Resource> IInternalStats.Externals => _externals;
-    IReadOnlyList<Resource> IInternalStats.Internals => _internals;
-    IReadOnlyList<Resource> IInternalStats.Embedded => _embedded;
-
     private void Awake()
     {
         foreach (var effect in _statusEffects)
-            effect.Start();
+            effect.Start(this);
 
         foreach (var effect in _temporaryStatusEffects)
-            effect.Start();
+            effect.Start(this);
     }
 
     public virtual void AddStatusEffect(StatusEffect statusEffect)
     {
-        (statusEffect.IsTemporary 
-            ? _temporaryStatusEffects 
+        (statusEffect is TemporaryStatusEffect
+            ? _temporaryStatusEffects
             : _statusEffects)
             .Add(statusEffect);
 
-        statusEffect.Start();
+        statusEffect.Start(this);
     }
-        
+
     public void TakeDamage(Element element, float damage)
     {
 
@@ -52,38 +52,73 @@ public class Stats : NetworkBehaviour, IReadOnlyStats, IInternalStats
     [CustomEditor(typeof(Stats), true)]
     private class Editor : UnityEditor.Editor
     {
-        private static readonly FieldInfo[] _resourceFields;
-        private static readonly string[] _resourceFieldsName;
-        private int _selectedResourcePlaceIndex;
-        private int _selectedElementIndex;
+        private static readonly FieldInfo[] _resourceListsField;
+        private static readonly string[] _resourceListsName;
+        private static readonly Type[] _statusEffectsType;
+        private static readonly ConstructorInfo[] _statusEffectsConstructorInfo;
+        private static readonly string[] _statusEffectsName;
+        private int _resourceListIndex;
+        private int _resourceElementIndex;
+        private int _statusEffectIndex;
+        private int _statusEffectElementIndex;
+        private float _statusEffectDuration;
 
         static Editor()
         {
-            _resourceFields = typeof(Stats)
+            _resourceListsField = typeof(Stats)
                 .GetFields(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly)
                 .Where(f => typeof(ICollection<Resource>).IsAssignableFrom(f.FieldType))
                 .ToArray();
 
-            _resourceFieldsName = _resourceFields
+            _resourceListsName = _resourceListsField
                 .Select(f => char.ToUpper(f.Name[1]) + f.Name[2..])
+                .ToArray();
+
+            _statusEffectsType = typeof(StatusEffect).Assembly
+                .GetTypes()
+                .Where(t => !t.IsAbstract && t.IsSubclassOf(typeof(StatusEffect)))
+                .ToArray();
+
+            _statusEffectsConstructorInfo = _statusEffectsType
+                .Select(t => t.GetConstructors().Single())
+                .ToArray();
+
+            _statusEffectsName = _statusEffectsType
+                .Select(t => t.Name)
                 .ToArray();
         }
 
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
+            Stats stats = (Stats)target;
 
-            GUILayout.Label("\nNew " + nameof(Resource) + ":");
-
-            _selectedResourcePlaceIndex = EditorGUILayout.Popup(_selectedResourcePlaceIndex, _resourceFieldsName);
-
-            _selectedElementIndex = EditorGUILayout.Popup(_selectedElementIndex, Enum.GetNames(typeof(Element)));
-
-            if (_selectedElementIndex != 0)
+            GUILayout.Label("\n");
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("New " + nameof(Resource) + ":");
+            _resourceListIndex = EditorGUILayout.Popup(_resourceListIndex, _resourceListsName);
+            _resourceElementIndex = EditorGUILayout.Popup(_resourceElementIndex, Enum.GetNames(typeof(Element)));
+            if (_resourceElementIndex != 0)
             {
-                ((ICollection<Resource>)_resourceFields[_selectedResourcePlaceIndex].GetValue(target)).Add(new Resource((Element)_selectedElementIndex));
-                _selectedElementIndex = 0;
+                ((ICollection<Resource>)_resourceListsField[_resourceListIndex].GetValue(stats)).Add(new Resource((Element)_resourceElementIndex));
+                _resourceElementIndex = 0;
             }
+            GUILayout.EndHorizontal();
+
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("New " + nameof(StatusEffect) + ":", GUILayout.ExpandWidth(false));
+            _statusEffectIndex = EditorGUILayout.Popup(_statusEffectIndex, _statusEffectsName);
+            Type selectedType = _statusEffectsType[_statusEffectIndex];
+            bool isElemental = selectedType.GetInterfaces().Contains(typeof(IElementalStatusEffect));
+            bool isTemporary = selectedType.IsSubclassOf(typeof(TemporaryStatusEffect));
+            _statusEffectElementIndex = isElemental ? EditorGUILayout.Popup(_statusEffectElementIndex, Enum.GetNames(typeof(Element))) : 0;
+            _statusEffectDuration = isTemporary ? EditorGUILayout.FloatField(_statusEffectDuration) : 0;
+            if (GUILayout.Button("Add"))
+                (isTemporary
+                    ? stats._temporaryStatusEffects
+                    : stats._statusEffects)
+                    .Add((StatusEffect)_statusEffectsConstructorInfo[_statusEffectIndex].Invoke(null));
+            GUILayout.EndHorizontal();
         }
     }
 #endif
