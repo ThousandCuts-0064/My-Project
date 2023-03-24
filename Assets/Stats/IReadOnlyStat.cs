@@ -4,6 +4,6 @@ using UnityEngine;
 
 public interface IReadOnlyStat
 {
-    float BaseValue { get; }
+    float Base { get; }
     float Value { get; }
 }

@@ -48,7 +48,7 @@ public static class ElementExt
 
 
         _ => Enum.IsDefined(typeof(Element), element) 
-            ? throw new NotImplementedException() 
+            ? KnownColor.HotPink
             : throw new InvalidEnumArgumentException(nameof(element), (int)element, typeof(Element)),
     });
 

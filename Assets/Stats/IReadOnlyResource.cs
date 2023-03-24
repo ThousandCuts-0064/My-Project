@@ -9,6 +9,5 @@ public interface IReadOnlyResource
     public float Max { get; }
     public float Current { get; }
 
-    event Action<float> MaxChanged;
     event Action<float> CurrentChanged;
 }
