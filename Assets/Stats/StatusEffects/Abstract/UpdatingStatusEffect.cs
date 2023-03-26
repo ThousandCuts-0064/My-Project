@@ -6,7 +6,11 @@ using UnityEngine;
 [Serializable]
 internal abstract class UpdatingStatusEffect : StatusEffect
 {
-    internal override void Start(Stats stats) => GameManager.FixedUpdateEvent += FixedUpdate;
+    internal override bool TryStart(Stats stats)
+    {
+        GameManager.FixedUpdateEvent += FixedUpdate;
+        return true;
+    }
 
     internal override void Stop() => GameManager.FixedUpdateEvent -= FixedUpdate;
 

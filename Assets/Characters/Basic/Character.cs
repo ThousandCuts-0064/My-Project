@@ -97,7 +97,8 @@ public class Character : NetworkBehaviour
             Physics.IgnoreCollision(projCollider, shooterColliders[i]);
         projectile.NetworkObject.Spawn();
 
-        projectile.Config(5, 10);
+        projectile.LifeSeconds = 5;
+        projectile.Damage = 1;
         Rigidbody rigidbody = projectile.GetComponent<Rigidbody>();
         rigidbody.velocity = 50 * projectile.transform.forward;
     }

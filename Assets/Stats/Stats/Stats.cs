@@ -27,20 +27,28 @@ public class Stats : NetworkBehaviour, IReadOnlyStats
     private void Awake()
     {
         foreach (var effect in _statusEffects)
-            effect.Start(this);
+            effect.TryStart(this);
 
         foreach (var effect in _temporaryStatusEffects)
-            effect.Start(this);
+            effect.TryStart(this);
     }
 
-    public virtual void AddStatusEffect(StatusEffect statusEffect)
+    internal virtual bool TryGetStat(string name, out Stat stat)
     {
+        stat = null;
+        return true;
+    }
+
+    public virtual bool TryApplyStatusEffect(StatusEffect statusEffect)
+    {
+        if (!statusEffect.TryStart(this))
+            return false;
+
         (statusEffect is TemporaryStatusEffect
             ? _temporaryStatusEffects
             : _statusEffects)
             .Add(statusEffect);
-
-        statusEffect.Start(this);
+        return true;
     }
 
     public void TakeDamage(Element element, float damage)

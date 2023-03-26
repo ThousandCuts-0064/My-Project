@@ -7,8 +7,9 @@ public class Projectile : NetworkBehaviour
 {
     private Rigidbody _rigidbody;
     private float _spawnTime;
-    public float LifeSeconds { get; private set; } = float.MaxValue;
-    public float Damage { get; private set; } = float.MaxValue;
+    public StatusEffect StatusEffect { get; set; }
+    public float LifeSeconds { get; set; } = 10;
+    public float Damage { get; set; }
 
     private void Awake()
     {
@@ -32,15 +33,11 @@ public class Projectile : NetworkBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (!IsServer) return;
+        if (!IsServer 
+            || !collision.gameObject.TryGetComponent(out Stats stats))
+            return;
 
-        if (collision.gameObject.TryGetComponent(out Stats stats))
-            stats.TakeDamage(Element.Fire, 10);
-    }
-
-    public void Config(float lifeSeconds, float damage)
-    {
-        LifeSeconds = lifeSeconds;
-        Damage = damage;
+        stats.TakeDamage(Element.Fire, 10);
+        stats.TryApplyStatusEffect(StatusEffect);
     }
 }

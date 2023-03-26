@@ -13,4 +13,15 @@ public class CharacterStats : Stats, IReadOnlyCharacterStats
 
     public IReadOnlyStat MovementSpeed => MovementSpeed;
     public IReadOnlyStat JumpStrength => JumpStrength;
+
+    internal override bool TryGetStat(string name, out Stat stat)
+    {
+        stat = name switch
+        {
+            nameof(MovementSpeed) => MovementSpeedInternal,
+            nameof(JumpStrength) => JumpStrengthInternal,
+            _ => null
+        };
+        return stat == null;
+    }
 }

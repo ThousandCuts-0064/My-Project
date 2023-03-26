@@ -29,6 +29,6 @@ public abstract class StatusEffect
         return null;
     }
 
-    internal abstract void Start(Stats stats);
+    internal abstract bool TryStart(Stats stats);
     internal abstract void Stop();
 }

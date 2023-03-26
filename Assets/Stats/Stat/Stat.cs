@@ -36,6 +36,15 @@ public class Stat : IReadOnlyStat
         stat._modOfOthers.Add(this);
     }
 
+    public void RemoveFromOthers()
+    {
+        foreach (var mod in _modOfOthers)
+        {
+            if (mod._flatMods.Remove(this)) continue;
+            if (mod._multMods.Remove(this)) continue;
+        }
+    }
+
     private void Calculate()
     {
         Value = Base;
