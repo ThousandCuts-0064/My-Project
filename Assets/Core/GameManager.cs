@@ -37,6 +37,16 @@ public class GameManager : MonoBehaviour
             if (GUILayout.Button("Update Element Colors"))
                 Debug.Log(1);
 
+            //string material = "Water";
+            //WebClient webClient = new WebClient();
+            //var colors = webClient.DownloadString($"https://www.google.com/search?q=rgb+color+of+" + material)
+            //    .Split(new string[] { "<a", "</a>" }, StringSplitOptions.RemoveEmptyEntries)
+            //    .Where(str => new string[] { material, "#" }.All(s => str.Contains(s)))
+            //    .Select(str => str.Substring(str.IndexOf('#') + 1, 6))
+            //    .Where(str => str.All(c => c == '#' || c >= '0' && c <= '9' || c >= 'a' && c <= 'f' || c >= 'A' && c <= 'F'))
+            //    .ToArray();
+            //Console.WriteLine(string.Join("\n", colors));
+
         }
     }
 #endif
