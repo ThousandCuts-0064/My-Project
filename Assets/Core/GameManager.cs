@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 public class GameManager : MonoBehaviour
 {
@@ -25,4 +26,18 @@ public class GameManager : MonoBehaviour
     {
         FixedUpdateEvent?.Invoke();
     }
+
+#if UNITY_EDITOR
+    [CustomEditor(typeof(GameManager))]
+    class Editor : UnityEditor.Editor
+    {
+        public override void OnInspectorGUI()
+        {
+            base.OnInspectorGUI();
+            if (GUILayout.Button("Update Element Colors"))
+                Debug.Log(1);
+
+        }
+    }
+#endif
 }

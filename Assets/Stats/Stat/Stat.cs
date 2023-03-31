@@ -8,46 +8,69 @@ using UnityEditor;
 using UnityEngine;
 
 [Serializable]
-public class Stat : IReadOnlyStat
+public abstract class Stat : IReadOnlyStat
 #if UNITY_EDITOR
     , ISerializationCallbackReceiver
 #endif
 {
 #if UNITY_EDITOR
+    internal const string VALUE_FIELD_NAME = nameof(_value);
     private float _oldBase;
 #endif
     private readonly HashSet<Stat> _flatMods = new();
     private readonly HashSet<Stat> _multMods = new();
-    private readonly HashSet<Stat> _modOfOthers = new();
+    private readonly List<Stat> _modTo = new();
+    private bool _modsChanged;
+    [SerializeField] private float _value;
     [field: SerializeField] public float Base { get; private set; }
-    [field: SerializeField] public float Value { get; private set; }
-
-    public Stat(float baseValue) => Base = baseValue;
-
-    public void ModFlat(Stat stat)
+    public float Value
     {
-        _flatMods.Add(stat);
-        stat._modOfOthers.Add(this);
+        get
+        {
+            if (_modsChanged)
+            {
+                Calculate();
+                _modsChanged = false;
+            }
+            return _value;
+        }
     }
 
-    public void ModMult(Stat stat)
-    {
-        _multMods.Add(stat);
-        stat._modOfOthers.Add(this);
-    }
+    internal Stat(float baseValue) => Base = baseValue;
+    private protected Stat() { }
 
     public void RemoveFromOthers()
     {
-        foreach (var mod in _modOfOthers)
-        {
-            if (mod._flatMods.Remove(this)) continue;
-            if (mod._multMods.Remove(this)) continue;
-        }
+        foreach (var mod in _modTo)
+            if (!_flatMods.Remove(mod))
+                _multMods.Remove(mod);
+    }
+
+    private protected void ModFlat(Stat stat)
+    {
+        _flatMods.Add(stat);
+        RegisterMod(stat);
+    }
+
+    private protected void ModMult(Stat stat)
+    {
+        _multMods.Add(stat);
+        RegisterMod(stat);
+    }
+
+    private void RegisterMod(Stat stat)
+    {
+        _modsChanged = true;
+        stat._modTo.Add(this);
     }
 
     private void Calculate()
     {
-        Value = Base;
+        _value = Base;
+        foreach (var mod in _flatMods)
+            _value += mod.Value;
+        foreach (var mod in _multMods)
+            _value *= mod.Value;
     }
 
 #if UNITY_EDITOR
@@ -62,7 +85,7 @@ public class Stat : IReadOnlyStat
 
     void ISerializationCallbackReceiver.OnAfterDeserialize() { }
 
-    [CustomPropertyDrawer(typeof(Stat))]
+    [CustomPropertyDrawer(typeof(Stat), true)]
     public class Drawer : PropertyDrawer
     {
         private static readonly GUIStyle _style = CustomGUI.CenteredLabel;
@@ -85,7 +108,7 @@ public class Stat : IReadOnlyStat
             EditorGUI.indentLevel = 0;
 
             SerializedProperty @base = property.FindPropertyRelative(Utility.ToBackingField(nameof(Base)));
-            SerializedProperty value = property.FindPropertyRelative(Utility.ToBackingField(nameof(Value)));
+            SerializedProperty value = property.FindPropertyRelative(nameof(_value));
             EditorGUI.LabelField(rects[0], @base.displayName, _style);
             @base.floatValue = EditorGUI.DelayedFloatField(rects[1], @base.floatValue);
             GUI.enabled = false;

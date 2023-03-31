@@ -7,15 +7,12 @@ using UnityEngine;
 
 [Serializable]
 internal class Resource : IReadOnlyResource
-//#if UNITY_EDITOR
-//    , ISerializationCallbackReceiver
-//#endif
 {
 #if UNITY_EDITOR
     [SuppressMessage("CodeQuality", "IDE0052:Remove unread private members", Justification = "Used for serialization")]
     [SerializeField, HideInInspector] private string _name;
 #endif
-    [SerializeField] private Stat _max;
+    [SerializeField] private FlatStat _max;
     [SerializeField] private float _current;
     [field: SerializeField, HideInInspector] public Element Element { get; private set; }
 
@@ -45,14 +42,14 @@ internal class Resource : IReadOnlyResource
 #endif
     }
 
-    public void ModFlat(Stat stat)
+    public void ModFlat(FlatStat stat)
     {
         _max.ModFlat(stat);
         if (Current > Max)
             Current = Max;
     }
 
-    public void ModMult(Stat stat)
+    public void ModMult(MultStat stat)
     {
         _max.ModMult(stat);
         if (Current > Max)
@@ -70,8 +67,7 @@ internal class Resource : IReadOnlyResource
             SerializedProperty name = property.FindPropertyRelative(nameof(_name));
             SerializedProperty current = property.FindPropertyRelative(nameof(_current));
             SerializedProperty max = property.FindPropertyRelative(nameof(_max));
-            SerializedProperty maxBase = max.FindPropertyRelative(Utility.ToBackingField(nameof(Stat.Base)));
-            SerializedProperty maxValue = max.FindPropertyRelative(Utility.ToBackingField(nameof(Stat.Value)));
+            SerializedProperty maxValue = max.FindPropertyRelative(Stat.VALUE_FIELD_NAME);
 
             position.height /= GetRows(property);
             Vector2 mousePosition = Event.current.mousePosition;

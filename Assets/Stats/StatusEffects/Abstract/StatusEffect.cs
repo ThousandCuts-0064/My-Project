@@ -11,7 +11,7 @@ public abstract class StatusEffect
     [SuppressMessage("CodeQuality", "IDE0052:Remove unread private members", Justification = "Used for serialization")]
     [SerializeField, HideInInspector] private string _name;
 #endif
-    [field: SerializeField] internal Stat Stat { get; private set; } = new Stat(1);
+    [field: SerializeField] internal Stat Stat { get; private set; } = new FlatStat(1);
 
     internal StatusEffect() 
     {

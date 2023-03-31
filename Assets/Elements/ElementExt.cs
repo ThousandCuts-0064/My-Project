@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using UnityEngine;
 using System.Drawing;
+using System.Net;
 using Color = UnityEngine.Color;
 using static Element;
 using static ElementType;
@@ -18,16 +19,31 @@ public static class ElementExt
         { (Fire  , Air  ), Lightning },
     };
 
-    public static bool TryCombine(this Element e1, Element e2, out Element eOut) => _combinationTable.TryGetValue((e1 , e2), out eOut);
+    private static readonly IReadOnlyDictionary<Element, Color> _elementToColor;
+
+    static ElementExt()
+    {
+        Dictionary<Element, Color> elementToColor = new();
+        using (WebClient webClient = new())
+            for (Element element = 0; Enum.IsDefined(typeof(Element), element); element++)
+            {
+                //string str = webClient.DownloadString($"https://www.google.com/search?q=rgb+color+of+{element}");
+                ////str = str.Substring(str.IndexOf('#'), 8);
+                //Debug.Log(str);
+            }
+        _elementToColor = elementToColor;
+    }
+
+    public static bool TryCombine(this Element e1, Element e2, out Element eOut) => _combinationTable.TryGetValue((e1, e2), out eOut);
 
     public static ElementType GetState(this Element element) => element switch
     {
         Element.None => throw new InvalidEnumArgumentException(nameof(element), (int)element, typeof(Element)),
 
         Water => Liquid,
-        Air   => Gas,
+        Air => Gas,
         Stone => Solid,
-        Fire  => Plasma,
+        Fire => Plasma,
 
 
 
@@ -41,13 +57,13 @@ public static class ElementExt
         Element.None => throw new InvalidEnumArgumentException(nameof(element), (int)element, typeof(Element)),
 
         Water => KnownColor.Aqua,
-        Air   => KnownColor.WhiteSmoke,
+        Air => KnownColor.WhiteSmoke,
         Stone => KnownColor.Gray,
-        Fire  => KnownColor.Orange,
+        Fire => KnownColor.Orange,
 
 
 
-        _ => Enum.IsDefined(typeof(Element), element) 
+        _ => Enum.IsDefined(typeof(Element), element)
             ? KnownColor.HotPink
             : throw new InvalidEnumArgumentException(nameof(element), (int)element, typeof(Element)),
     });

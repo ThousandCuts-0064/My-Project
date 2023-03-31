@@ -5,11 +5,11 @@ using UnityEngine;
 
 public class CharacterStats : Stats, IReadOnlyCharacterStats
 {
-    [SerializeField] private Stat _movementSpeed;
-    [SerializeField] private Stat _jumpStrength;
+    [SerializeField] private FlatStat _movementSpeed;
+    [SerializeField] private FlatStat _jumpStrength;
 
-    internal Stat MovementSpeedInternal => _movementSpeed;
-    internal Stat JumpStrengthInternal => _jumpStrength;
+    internal FlatStat MovementSpeedInternal => _movementSpeed;
+    internal FlatStat JumpStrengthInternal => _jumpStrength;
 
     public IReadOnlyStat MovementSpeed => MovementSpeed;
     public IReadOnlyStat JumpStrength => JumpStrength;

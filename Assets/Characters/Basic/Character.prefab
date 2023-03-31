@@ -328,11 +328,11 @@ MonoBehaviour:
   - rid: 6546092459986780167
   _temporaryStatusEffects: []
   _movementSpeed:
+    _value: 1
     <Base>k__BackingField: 1
-    <Value>k__BackingField: 1
   _jumpStrength:
+    _value: 5
     <Base>k__BackingField: 5
-    <Value>k__BackingField: 5
   references:
     version: 2
     RefIds:
@@ -341,8 +341,8 @@ MonoBehaviour:
       data:
         _name: Water
         _max:
+          _value: 50
           <Base>k__BackingField: 50
-          <Value>k__BackingField: 50
         _current: 50
         <Element>k__BackingField: 2
     - rid: 6546092320719896584
@@ -350,8 +350,8 @@ MonoBehaviour:
       data:
         _name: Air
         _max:
+          _value: 10
           <Base>k__BackingField: 10
-          <Value>k__BackingField: 10
         _current: 10
         <Element>k__BackingField: 3
     - rid: 6546092320719896588
@@ -359,24 +359,21 @@ MonoBehaviour:
       data:
         _name: Meat
         _max:
+          _value: 50
           <Base>k__BackingField: 50
-          <Value>k__BackingField: 50
         _current: 50
         <Element>k__BackingField: 21
     - rid: 6546092459986780167
       type: {class: Breathing, ns: , asm: Stats}
       data:
         _name: Breathing
-        <Stat>k__BackingField:
-          <Base>k__BackingField: 1
-          <Value>k__BackingField: 1
         <Element>k__BackingField: 3
     - rid: 6546092459986780171
       type: {class: Resource, ns: , asm: Stats}
       data:
         _name: Blood
         _max:
+          _value: 25
           <Base>k__BackingField: 25
-          <Value>k__BackingField: 25
         _current: 25
         <Element>k__BackingField: 20

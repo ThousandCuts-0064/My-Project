@@ -6,7 +6,7 @@ using UnityEngine;
 [Serializable]
 internal class StatAffecting : TemporaryStatusEffect
 {
-    private Stat _stat;
+    private Stat _targetStat;
     public string StatName { get; set; }
     public ModType ModType { get; set; }
 
@@ -14,16 +14,29 @@ internal class StatAffecting : TemporaryStatusEffect
 
     internal override bool TryStart(Stats stats)
     {
-        if (!stats.TryGetStat(StatName, out _stat))
+        if (!stats.TryGetStat(StatName, out _targetStat))
             return false;
 
         base.TryStart(stats);
-        switch (ModType)
+        switch (_targetStat)
         {
-            case ModType.None: throw new InvalidOperationException();
-            case ModType.Flat: _stat.ModFlat(_stat); break;
-            case ModType.Mult: _stat.ModMult(_stat); break;
-            default: throw new ArgumentOutOfRangeException(nameof(ModType));
+            case FlatStat flatStat:
+                switch (ModType)
+                {
+                    case ModType.Flat: flatStat.ModFlat((FlatStat)Stat); break;
+                    case ModType.Mult: flatStat.ModMult((MultStat)Stat); break;
+                    default: throw new InvalidOperationException();
+                }
+                break;
+
+            case MultStat multStat:
+                switch (ModType)
+                {
+                    case ModType.Flat: multStat.ModFlat((MultStat)Stat); break;
+                    case ModType.Mult: multStat.ModMult((MultStat)Stat); break;
+                    default: throw new InvalidOperationException();
+                }
+                break;
         }
         return true;
     }
