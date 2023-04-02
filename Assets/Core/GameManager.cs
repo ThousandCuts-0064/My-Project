@@ -6,6 +6,9 @@ using UnityEditor;
 
 public class GameManager : MonoBehaviour
 {
+#if UNITY_EDITOR
+    private static readonly List<(string text, Action action)> _buttons = new();
+#endif
     public static event Action UpdateEvent;
     public static event Action FixedUpdateEvent;
 
@@ -28,25 +31,18 @@ public class GameManager : MonoBehaviour
     }
 
 #if UNITY_EDITOR
+    public static void MakeButton(string text, Action action) => _buttons.Add((text, action));
+
     [CustomEditor(typeof(GameManager))]
     class Editor : UnityEditor.Editor
     {
+
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
-            if (GUILayout.Button("Update Element Colors"))
-                Debug.Log(1);
-
-            //string material = "Water";
-            //WebClient webClient = new WebClient();
-            //var colors = webClient.DownloadString($"https://www.google.com/search?q=rgb+color+of+" + material)
-            //    .Split(new string[] { "<a", "</a>" }, StringSplitOptions.RemoveEmptyEntries)
-            //    .Where(str => new string[] { material, "#" }.All(s => str.Contains(s)))
-            //    .Select(str => str.Substring(str.IndexOf('#') + 1, 6))
-            //    .Where(str => str.All(c => c == '#' || c >= '0' && c <= '9' || c >= 'a' && c <= 'f' || c >= 'A' && c <= 'F'))
-            //    .ToArray();
-            //Console.WriteLine(string.Join("\n", colors));
-
+            foreach (var (text, action) in _buttons)
+                if (GUILayout.Button(text))
+                    action();
         }
     }
 #endif

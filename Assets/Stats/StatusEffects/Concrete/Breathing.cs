@@ -22,6 +22,6 @@ internal class Breathing : UpdatingStatusEffect, IElementalStatusEffect
 
     protected override void FixedUpdate()
     {
-        _resource.Current += Stat.Value / _resource.Current;
+        _resource.Current += Stat.Value;
     }
 }

@@ -1,3 +1,16 @@
 {
-	"name": "Elements"
+    "name": "Elements",
+    "rootNamespace": "",
+    "references": [
+        "GUID:978f56a061ca0c742af30171ed126d70"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
 }
