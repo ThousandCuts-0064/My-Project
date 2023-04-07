@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 [Serializable]
-internal abstract class UpdatingStatusEffect : StatusEffect
+internal abstract class UpdatingEffect : StatusEffect
 {
     internal override bool TryStart(Stats stats)
     {

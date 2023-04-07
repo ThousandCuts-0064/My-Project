@@ -5,10 +5,11 @@ using System.Linq;
 using UnityEngine;
 
 [Serializable]
-internal class Breathing : UpdatingStatusEffect, IElementalStatusEffect
+internal class Breathing : UpdatingEffect, IElementalStatusEffect, IStatStatusEffect<FlatStat>
 {
     private Resource _resource;
     [field: SerializeField] public Element Element { get; set; }
+    public FlatStat Stat { get; }
 
     internal override bool TryStart(Stats stats)
     {

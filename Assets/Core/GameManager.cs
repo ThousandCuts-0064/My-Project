@@ -36,7 +36,6 @@ public class GameManager : MonoBehaviour
     [CustomEditor(typeof(GameManager))]
     class Editor : UnityEditor.Editor
     {
-
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();

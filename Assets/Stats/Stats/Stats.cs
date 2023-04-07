@@ -17,12 +17,12 @@ public class Stats : NetworkBehaviour, IReadOnlyStats
     [SerializeReference] private List<StatusEffect> _temporaryStatusEffects;
 
     internal IReadOnlyList<Resource> ExternalsInternal => _externals;
-    internal IReadOnlyList<Resource> InternalsInternal => _externals;
-    internal IReadOnlyList<Resource> EmbeddedInternal => _externals;
+    internal IReadOnlyList<Resource> InternalsInternal => _internals;
+    internal IReadOnlyList<Resource> EmbeddedInternal => _embedded;
 
     public IReadOnlyList<IReadOnlyResource> Externals => _externals;
-    public IReadOnlyList<IReadOnlyResource> Internals => _externals;
-    public IReadOnlyList<IReadOnlyResource> Embedded => _externals;
+    public IReadOnlyList<IReadOnlyResource> Internals => _internals;
+    public IReadOnlyList<IReadOnlyResource> Embedded => _embedded;
 
     private void Awake()
     {
@@ -33,7 +33,13 @@ public class Stats : NetworkBehaviour, IReadOnlyStats
             effect.TryStart(this);
     }
 
-    internal virtual bool TryGetStat(string name, out Stat stat)
+    internal virtual bool TryGetFlatStat(string name, out FlatStat stat)
+    {
+        stat = null;
+        return true;
+    }
+
+    internal virtual bool TryGetMultStat(string name, out MultStat stat)
     {
         stat = null;
         return true;
@@ -44,7 +50,7 @@ public class Stats : NetworkBehaviour, IReadOnlyStats
         if (!statusEffect.TryStart(this))
             return false;
 
-        (statusEffect is TemporaryStatusEffect
+        (statusEffect is TemporaryEffect
             ? _temporaryStatusEffects
             : _statusEffects)
             .Add(statusEffect);
@@ -119,7 +125,7 @@ public class Stats : NetworkBehaviour, IReadOnlyStats
             _statusEffectIndex = EditorGUILayout.Popup(_statusEffectIndex, _statusEffectsName);
             Type selectedType = _statusEffectsType[_statusEffectIndex];
             bool isElemental = selectedType.GetInterfaces().Contains(typeof(IElementalStatusEffect));
-            bool isTemporary = selectedType.IsSubclassOf(typeof(TemporaryStatusEffect));
+            bool isTemporary = selectedType.IsSubclassOf(typeof(TemporaryEffect));
             _statusEffectElementIndex = isElemental ? EditorGUILayout.Popup(_statusEffectElementIndex, Enum.GetNames(typeof(Element))) : 0;
             var old = _statusEffectDuration;
             _statusEffectDuration = isTemporary ? EditorGUILayout.FloatField(_statusEffectDuration) : 0;
