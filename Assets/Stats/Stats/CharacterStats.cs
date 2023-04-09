@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-public class CharacterStats : Stats, IReadOnlyCharacterStats
+public class CharacterStats : Stats
 {
     [SerializeField] private FlatStat _movementSpeed;
     [SerializeField] private FlatStat _jumpStrength;
@@ -14,12 +14,12 @@ public class CharacterStats : Stats, IReadOnlyCharacterStats
     public IReadOnlyStat MovementSpeed => MovementSpeed;
     public IReadOnlyStat JumpStrength => JumpStrength;
 
-    internal override bool TryGetFlatStat(string name, out FlatStat stat)
+    internal override bool TryGetStat(FlatStatType flatStatType, out FlatStat stat)
     {
-        stat = name switch
+        stat = flatStatType switch
         {
-            nameof(MovementSpeed) => MovementSpeedInternal,
-            nameof(JumpStrength) => JumpStrengthInternal,
+            FlatStatType.MovementSpeed => MovementSpeedInternal,
+            FlatStatType.JumpStrength => JumpStrengthInternal,
             _ => null
         };
         return stat == null;

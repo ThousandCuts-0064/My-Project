@@ -10,7 +10,7 @@ public class Character : NetworkBehaviour
     private List<Collider> _feetColliders;
     private Player _player;
     private CharacterStats _stats;
-    private UICharacter _uiCharacter;
+    private UIStats _uiCharacter;
     private Rigidbody _rigidbody;
     private Collider _collider;
     private NetworkSlot _playerSlot;
@@ -49,11 +49,11 @@ public class Character : NetworkBehaviour
         name = $"{nameof(Character)} ({_player.OwnerClientId})";
     }
 
-    public void SetUI(UICharacter uiCharacter)
+    public void SetUI(UIStats uiCharacter)
     {
         _uiCharacter = uiCharacter;
         _uiCharacter.gameObject.SetActive(true);
-        _uiCharacter.CharacterStats = _stats;
+        _uiCharacter.Stats = _stats;
     }
 
     public void SetLookRotation(Vector3 rotation)

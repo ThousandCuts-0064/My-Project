@@ -6,6 +6,8 @@ using UnityEngine;
 [Serializable]
 public sealed class MultStat : Stat
 {
+    public override float Neutral => 1;
+
     public MultStat(float baseValue) : base(baseValue) { }
     private MultStat() : base() { }
 

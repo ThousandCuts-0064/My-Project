@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class UICharacter : MonoBehaviour
+public class UIStats : MonoBehaviour
 {
     private GameObject _panels;
-    public IReadOnlyCharacterStats CharacterStats { get; set; }
+    public IReadOnlyStats Stats { get; set; }
 
     private void Awake()
     {

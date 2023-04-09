@@ -11,18 +11,13 @@ internal class Breathing : UpdatingEffect, IElementalStatusEffect, IStatStatusEf
     [field: SerializeField] public Element Element { get; set; }
     public FlatStat Stat { get; }
 
-    internal override bool TryStart(Stats stats)
+    private protected override bool TryInitialize(Stats stats)
     {
-        _resource = ResourceOfElement(stats.EmbeddedInternal, Element);
-        if (_resource == null)
-            return false;
-
-        base.TryStart(stats);
-        return true;
+        var state = Element.GetState();
+        return (state == ElementType.Liquid 
+            || state == ElementType.Gas)
+            && TryFind(stats.EmbeddedInternal, Element, out _resource); 
     }
 
-    protected override void FixedUpdate()
-    {
-        _resource.Current += Stat.Value;
-    }
+    protected override void FixedUpdate() => _resource.Current += Stat.Value;
 }

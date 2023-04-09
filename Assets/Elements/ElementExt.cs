@@ -107,7 +107,7 @@ public static class ElementExt
         color.g.ToString("X").PadLeft(2, '0') + 
         color.b.ToString("X").PadLeft(2, '0');
 
-    private readonly struct ElementCombo
+    private readonly struct ElementCombo : IEquatable<ElementCombo>
     {
         public readonly Element E1;
         public readonly Element E2;
@@ -118,13 +118,13 @@ public static class ElementExt
             E2 = e2;
         }
 
+        public bool Equals(ElementCombo other) => other == this;
         public override bool Equals(object obj) => obj is ElementCombo ec && ec == this;
-
         public override int GetHashCode() => (int)(E1 | E2);
-
         public override string ToString() => $"{{{E1}, {E2}}}";
 
-        public static implicit operator ElementCombo((Element e1, Element e2) es) => new(es.e1, es.e2);
+
+        public static implicit operator ElementCombo((Element e1, Element e2) elements) => new(elements.e1, elements.e2);
 
         public static bool operator ==(ElementCombo l, ElementCombo r) =>
             l.E1 == r.E1 && l.E2 == r.E2 ||

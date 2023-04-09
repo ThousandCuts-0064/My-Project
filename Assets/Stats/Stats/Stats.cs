@@ -33,13 +33,13 @@ public class Stats : NetworkBehaviour, IReadOnlyStats
             effect.TryStart(this);
     }
 
-    internal virtual bool TryGetFlatStat(string name, out FlatStat stat)
+    internal virtual bool TryGetStat(FlatStatType flatStatType, out FlatStat stat)
     {
         stat = null;
         return true;
     }
 
-    internal virtual bool TryGetMultStat(string name, out MultStat stat)
+    internal virtual bool TryGetStat(MultStatType multStatType, out MultStat stat)
     {
         stat = null;
         return true;

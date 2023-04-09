@@ -11,48 +11,53 @@ public partial class StatusEffect
         internal abstract void Stop();
     }
 
+
+
     private protected abstract class Mod<TOwned, TTarget> : Component
     where TOwned : Stat
     where TTarget : Stat
     {
-        public TTarget TargetStat { get; protected set; }
         public TOwned Stat { get; protected set; }
-        public string StatName { get; private set; }
-
-        internal Mod(string statName) => StatName = statName;
+        public TTarget TargetStat { get; protected set; }
 
         internal override void Stop() => Stat.RemoveFromOthers();
     }
 
-    private protected class FlatModFlat : Mod<FlatStat, FlatStat>
+
+
+    private protected abstract class ModFlat<TOwned> : Mod<TOwned, FlatStat>
+    where TOwned : Stat
     {
-        internal FlatModFlat(string statName, float modBase) : base(statName) => Stat = new(modBase);
+        public FlatStatType FlatStatType { get; set; }
+
+        internal ModFlat(FlatStatType flatStatType) => FlatStatType = flatStatType;
 
         internal override bool TryInitialize(Stats stats)
         {
-            if (!stats.TryGetFlatStat(StatName, out FlatStat stat))
+            if (!stats.TryGetStat(FlatStatType, out FlatStat flatStat))
                 return false;
 
-            TargetStat = stat;
+            TargetStat = flatStat;
             return true;
         }
-
-        internal override void Start() => TargetStat.ModFlat(Stat);
     }
 
-    private protected class MultModFlat : Mod<MultStat, FlatStat>
+
+
+    private protected abstract class ModMult<TOwned> : Mod<TOwned, MultStat>
+    where TOwned : Stat
     {
-        internal MultModFlat(string statName, float modBase) : base(statName) => Stat = new(modBase);
+        public MultStatType MultStatType { get; set; }
+
+        internal ModMult(MultStatType multStatType) => MultStatType = multStatType;
 
         internal override bool TryInitialize(Stats stats)
         {
-            if (!stats.TryGetFlatStat(StatName, out FlatStat stat))
+            if (!stats.TryGetStat(MultStatType, out MultStat multStat))
                 return false;
 
-            TargetStat = stat;
+            TargetStat = multStat;
             return true;
         }
-
-        internal override void Start() => TargetStat.ModMult(Stat);
     }
 }

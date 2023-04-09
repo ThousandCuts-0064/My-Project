@@ -17,9 +17,9 @@ public abstract class Stat : IReadOnlyStat
     internal const string VALUE_FIELD_NAME = nameof(_value);
     private float _oldBase;
 #endif
-    private readonly HashSet<Stat> _flatMods = new();
-    private readonly HashSet<Stat> _multMods = new();
-    private readonly List<Stat> _modTo = new();
+    private HashSet<Stat> _flatMods;
+    private HashSet<Stat> _multMods;
+    private List<Stat> _modTo;
     private bool _modsChanged;
     [SerializeField] private float _value;
     [field: SerializeField] public float Base { get; private set; }
@@ -35,6 +35,7 @@ public abstract class Stat : IReadOnlyStat
             return _value;
         }
     }
+    public abstract float Neutral { get; }
 
     internal Stat(float baseValue) => Base = baseValue;
     private protected Stat() { }
@@ -48,19 +49,25 @@ public abstract class Stat : IReadOnlyStat
 
     private protected void ModFlat(Stat stat)
     {
-        _flatMods.Add(stat);
         RegisterMod(stat);
+        _flatMods.Add(stat);
     }
 
     private protected void ModMult(Stat stat)
     {
-        _multMods.Add(stat);
         RegisterMod(stat);
+        _multMods.Add(stat);
     }
 
     private void RegisterMod(Stat stat)
     {
         _modsChanged = true;
+        if (_modTo is null)
+        {
+            _flatMods = new();
+            _multMods = new();
+            _modTo = new();
+        }
         stat._modTo.Add(this);
     }
 

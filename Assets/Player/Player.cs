@@ -8,7 +8,7 @@ public class Player : NetworkBehaviour
 {
     private Character _character;
     private Camera _camera;
-    private UICharacter _uiCharacter;
+    private UIStats _uiCharacter;
     private Vector3 _lookRotation;
     private bool _doJump;
     private bool _doFire1;
@@ -17,7 +17,7 @@ public class Player : NetworkBehaviour
     private void Awake()
     {
         _camera = GetComponent<Camera>();
-        _uiCharacter = FindObjectOfType<Canvas>().GetComponentInChildren<UICharacter>(true);
+        _uiCharacter = FindObjectOfType<Canvas>().GetComponentInChildren<UIStats>(true);
     }
 
     private void Start()

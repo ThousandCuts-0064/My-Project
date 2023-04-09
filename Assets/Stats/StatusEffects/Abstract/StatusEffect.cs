@@ -13,11 +13,54 @@ public abstract partial class StatusEffect
 #endif
     private List<Component> _components;
 
-    internal StatusEffect() 
+    internal StatusEffect()
     {
 #if UNITY_EDITOR
         _name = GetType().Name;
 #endif
+    }
+
+    private protected static bool TryFind(IReadOnlyList<Resource> resources, Element element, out Resource resource)
+    {
+        for (int i = 0; i < resources.Count; i++)
+            if (resources[i].Element == element)
+            {
+                resource = resources[i];
+                return true;
+            }
+
+        resource = null;
+        return false;
+    }
+
+    internal bool TryStart(Stats stats)
+    {
+        if (!TryInitialize(stats))
+            return false;
+
+        Start();
+        return true;
+    }
+
+    internal virtual void Stop()
+    {
+        foreach (var component in _components)
+            component.Stop();
+    }
+
+    private protected virtual bool TryInitialize(Stats stats)
+    {
+        foreach (var component in _components)
+            if (!component.TryInitialize(stats))
+                return false;
+
+        return true;
+    }
+
+    private protected virtual void Start()
+    {
+        foreach (var component in _components)
+            component.Start();
     }
 
     private protected void AddComponent(Component component)
@@ -26,32 +69,5 @@ public abstract partial class StatusEffect
             _components = new();
 
         _components.Add(component);
-    }
-
-    private protected static Resource ResourceOfElement(IReadOnlyList<Resource> resources, Element element)
-    {
-        for (int i = 0; i < resources.Count; i++)
-            if (resources[i].Element == element)
-                return resources[i];
-
-        return null;
-    }
-
-    internal virtual bool TryStart(Stats stats)
-    {
-        foreach (var component in _components)
-            if (!component.TryInitialize(stats))
-                return false;
-
-        foreach (var component in _components)
-            component.Start();
-
-        return true;
-    }
-
-    internal virtual void Stop()
-    {
-        foreach (var component in _components)
-            component.Stop();
     }
 }
