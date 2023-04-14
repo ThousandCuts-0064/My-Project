@@ -74,6 +74,9 @@ public abstract class Stat : IReadOnlyStat
     private void Calculate()
     {
         _value = Base;
+        if (_flatMods is null)
+            return;
+
         foreach (var mod in _flatMods)
             _value += mod.Value;
         foreach (var mod in _multMods)

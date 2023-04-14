@@ -43,7 +43,7 @@ public static class ElementExt
     private static void Initialize() => GameManager.MakeButton("Update Elements Color", () =>
     {
         Dictionary<Element, string> elementToHexColor = File.Exists(_elementColorsPath)
-            ? (Dictionary<Element, string>)JsonConvert.DeserializeObject(File.ReadAllText(_elementColorsPath), typeof(Dictionary<Element, string>))
+            ? JsonConvert.DeserializeObject<Dictionary<Element, string>>(File.ReadAllText(_elementColorsPath))
             : new(Enum.GetNames(typeof(Element)).Length);
 
         foreach (var element in _elements)

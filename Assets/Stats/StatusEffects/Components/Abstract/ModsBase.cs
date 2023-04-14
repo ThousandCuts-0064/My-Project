@@ -4,21 +4,14 @@ using UnityEngine;
 
 public partial class StatusEffect
 {
-    private protected abstract class Component
-    {
-        internal abstract bool TryInitialize(Stats stats);
-        internal abstract void Start();
-        internal abstract void Stop();
-    }
-
-
-
     private protected abstract class Mod<TOwned, TTarget> : Component
     where TOwned : Stat
     where TTarget : Stat
     {
         public TOwned Stat { get; protected set; }
         public TTarget TargetStat { get; protected set; }
+
+        internal override Component Clone() => this;
 
         internal override void Stop() => Stat.RemoveFromOthers();
     }

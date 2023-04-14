@@ -4,6 +4,5 @@ using UnityEngine;
 
 public interface IReadOnlyStat
 {
-    float Base { get; }
     float Value { get; }
 }

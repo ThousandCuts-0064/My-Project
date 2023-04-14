@@ -5,18 +5,19 @@ using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 
 [Serializable]
-public abstract partial class StatusEffect
+public partial class StatusEffect
 {
 #if UNITY_EDITOR
     [SuppressMessage("CodeQuality", "IDE0052:Remove unread private members", Justification = "Used for serialization")]
     [SerializeField, HideInInspector] private string _name;
 #endif
     private List<Component> _components;
+    private List<Finisher> _finishers;
 
     internal StatusEffect()
     {
 #if UNITY_EDITOR
-        _name = GetType().Name;
+        _name = _components?[0].GetType().Name ?? "Error";
 #endif
     }
 
@@ -54,6 +55,11 @@ public abstract partial class StatusEffect
             if (!component.TryInitialize(stats))
                 return false;
 
+        if (_finishers != null)
+            foreach (var finisher in _finishers)
+                if (!finisher.TryInitialize(stats))
+                    return false;
+
         return true;
     }
 
@@ -61,13 +67,27 @@ public abstract partial class StatusEffect
     {
         foreach (var component in _components)
             component.Start();
+
+        if (_finishers != null)
+            foreach (var finisher in _finishers)
+                finisher.Start();
     }
 
-    private protected void AddComponent(Component component)
+    private protected StatusEffect Add(Component component)
     {
         if (_components is null)
             _components = new();
 
         _components.Add(component);
+        return this;
+    }
+
+    private protected StatusEffect Add(Finisher finisher)
+    {
+        if (_finishers is null)
+            _finishers = new();
+
+        _finishers.Add(finisher);
+        return this;
     }
 }

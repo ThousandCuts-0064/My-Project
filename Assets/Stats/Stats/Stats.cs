@@ -14,7 +14,7 @@ public class Stats : NetworkBehaviour, IReadOnlyStats
     [SerializeReference] private List<Resource> _internals;
     [SerializeReference] private List<Resource> _embedded;
     [SerializeReference] private List<StatusEffect> _statusEffects;
-    [SerializeReference] private List<StatusEffect> _temporaryStatusEffects;
+    //[SerializeReference] private List<StatusEffect> _temporaryStatusEffects;
 
     internal IReadOnlyList<Resource> ExternalsInternal => _externals;
     internal IReadOnlyList<Resource> InternalsInternal => _internals;
@@ -29,8 +29,20 @@ public class Stats : NetworkBehaviour, IReadOnlyStats
         foreach (var effect in _statusEffects)
             effect.TryStart(this);
 
-        foreach (var effect in _temporaryStatusEffects)
-            effect.TryStart(this);
+        //foreach (var effect in _temporaryStatusEffects)
+        //    effect.TryStart(this);
+    }
+
+    public virtual bool TryApplyStatusEffect(StatusEffect statusEffect)
+    {
+        if (!statusEffect.TryStart(this))
+            return false;
+
+        //(statusEffect is TemporaryEffect
+        //    ? _temporaryStatusEffects
+        //    : _statusEffects)
+        _statusEffects.Add(statusEffect);
+        return true;
     }
 
     internal virtual bool TryGetStat(FlatStatType flatStatType, out FlatStat stat)
@@ -42,18 +54,6 @@ public class Stats : NetworkBehaviour, IReadOnlyStats
     internal virtual bool TryGetStat(MultStatType multStatType, out MultStat stat)
     {
         stat = null;
-        return true;
-    }
-
-    public virtual bool TryApplyStatusEffect(StatusEffect statusEffect)
-    {
-        if (!statusEffect.TryStart(this))
-            return false;
-
-        (statusEffect is TemporaryEffect
-            ? _temporaryStatusEffects
-            : _statusEffects)
-            .Add(statusEffect);
         return true;
     }
 
@@ -94,9 +94,9 @@ public class Stats : NetworkBehaviour, IReadOnlyStats
                 .Where(t => !t.IsAbstract && t.IsSubclassOf(typeof(StatusEffect)))
                 .ToArray();
 
-            _statusEffectsConstructorInfo = _statusEffectsType
-                .Select(t => t.GetConstructors().Single())
-                .ToArray();
+            //_statusEffectsConstructorInfo = _statusEffectsType
+            //    .Select(t => t.GetConstructors().Single())
+            //    .ToArray();
 
             _statusEffectsName = _statusEffectsType
                 .Select(t => t.Name)
@@ -120,31 +120,34 @@ public class Stats : NetworkBehaviour, IReadOnlyStats
             }
             GUILayout.EndHorizontal();
 
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("New " + nameof(StatusEffect) + ":", EditorStyles.boldLabel, GUILayout.ExpandWidth(false));
-            _statusEffectIndex = EditorGUILayout.Popup(_statusEffectIndex, _statusEffectsName);
-            Type selectedType = _statusEffectsType[_statusEffectIndex];
-            bool isElemental = selectedType.GetInterfaces().Contains(typeof(IElementalStatusEffect));
-            bool isTemporary = selectedType.IsSubclassOf(typeof(TemporaryEffect));
-            _statusEffectElementIndex = isElemental ? EditorGUILayout.Popup(_statusEffectElementIndex, Enum.GetNames(typeof(Element))) : 0;
-            var old = _statusEffectDuration;
-            _statusEffectDuration = isTemporary ? EditorGUILayout.FloatField(_statusEffectDuration) : 0;
-            if (old != _statusEffectDuration)
-                _temporaryStatusEffectConstructorParameters[0] = _statusEffectDuration;
-            if (GUILayout.Button("Add"))
-            {
-                StatusEffect statusEffect = (StatusEffect)_statusEffectsConstructorInfo[_statusEffectIndex]
-                    .Invoke(isTemporary ? _temporaryStatusEffectConstructorParameters : null);
+            return;
+            //GUILayout.BeginHorizontal();
+            //GUILayout.Label("New " + nameof(StatusEffect) + ":", EditorStyles.boldLabel, GUILayout.ExpandWidth(false));
+            //_statusEffectIndex = EditorGUILayout.Popup(_statusEffectIndex, _statusEffectsName);
+            //Type selectedType = _statusEffectsType[_statusEffectIndex];
+            //bool isElemental = selectedType.GetInterfaces().Contains(typeof(IElementalStatusEffect));
+            //bool isTemporary = selectedType.IsSubclassOf(typeof(TemporaryEffect));
+            //_statusEffectElementIndex = isElemental ? EditorGUILayout.Popup(_statusEffectElementIndex, Enum.GetNames(typeof(Element))) : 0;
+            //var old = _statusEffectDuration;
+            //_statusEffectDuration = isTemporary ? EditorGUILayout.FloatField(_statusEffectDuration) : 0;
+            //if (old != _statusEffectDuration)
+            //    _temporaryStatusEffectConstructorParameters[0] = _statusEffectDuration;
 
-                if (statusEffect is IElementalStatusEffect elemental)
-                    elemental.Element = (Element)_statusEffectElementIndex;
+            //if (GUILayout.Button("Add"))
+            //{
+            //    StatusEffect statusEffect = (StatusEffect)_statusEffectsConstructorInfo[_statusEffectIndex]
+            //        .Invoke(isTemporary ? _temporaryStatusEffectConstructorParameters : null);
 
-                (isTemporary
-                    ? stats._temporaryStatusEffects
-                    : stats._statusEffects)
-                    .Add(statusEffect);
-            }
-            GUILayout.EndHorizontal();
+            //    if (statusEffect is IElementalStatusEffect elemental)
+            //        elemental.Element = (Element)_statusEffectElementIndex;
+
+            //    (isTemporary
+            //        ? stats._temporaryStatusEffects
+            //        : stats._statusEffects)
+            //        .Add(statusEffect);
+            //}
+
+            //GUILayout.EndHorizontal();
         }
     }
 #endif

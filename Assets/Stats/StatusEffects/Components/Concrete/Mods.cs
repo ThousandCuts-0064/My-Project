@@ -37,8 +37,4 @@ public partial class StatusEffect
 
         internal override void Start() => TargetStat.ModMult(Stat);
     }
-
-
-
-
 }

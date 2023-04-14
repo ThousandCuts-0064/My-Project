@@ -324,9 +324,7 @@ MonoBehaviour:
   _embedded:
   - rid: 6546092320719896583
   - rid: 6546092320719896584
-  _statusEffects:
-  - rid: 6546092459986780167
-  _temporaryStatusEffects: []
+  _statusEffects: []
   _movementSpeed:
     _value: 1
     <Base>k__BackingField: 1
@@ -363,11 +361,6 @@ MonoBehaviour:
           <Base>k__BackingField: 50
         _current: 50
         <Element>k__BackingField: 21
-    - rid: 6546092459986780167
-      type: {class: Breathing, ns: , asm: Stats}
-      data:
-        _name: Breathing
-        <Element>k__BackingField: 3
     - rid: 6546092459986780171
       type: {class: Resource, ns: , asm: Stats}
       data:

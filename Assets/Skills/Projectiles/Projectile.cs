@@ -7,13 +7,14 @@ public class Projectile : NetworkBehaviour
 {
     private Rigidbody _rigidbody;
     private float _spawnTime;
-    public StatusEffect StatusEffect { get; set; }
     public float LifeSeconds { get; set; } = 10;
     public float Damage { get; set; }
+    public StatusEffect StatusEffect { get; private set; }
 
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody>();
+        StatusEffect = StatusEffect.MultMod(FlatStatType.MovementSpeed, 0.8f).Timer(3);
     }
 
     private void Start()
@@ -38,6 +39,6 @@ public class Projectile : NetworkBehaviour
             return;
 
         stats.TakeDamage(Element.Fire, 10);
-        stats.TryApplyStatusEffect(StatusEffect);
+        stats.TryApplyStatusEffect(StatusEffect.Clone());
     }
 }
