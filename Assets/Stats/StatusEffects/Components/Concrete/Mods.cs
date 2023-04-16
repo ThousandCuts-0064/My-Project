@@ -4,36 +4,36 @@ using UnityEngine;
 
 public partial class StatusEffect
 {
-    private protected class FlatModFlat : ModFlat<FlatStat>
+    private protected class _FlatModFlat : ModFlat<FlatStat>
     {
-        internal FlatModFlat(FlatStatType flatStatType, float modBase) : base(flatStatType) => Stat = new(modBase);
+        internal _FlatModFlat(FlatStatType flatStatType, float modBase) : base(flatStatType) => Stat = new(modBase);
 
         internal override void Start() => TargetStat.ModFlat(Stat);
     }
 
 
 
-    private protected class MultModFlat : ModFlat<MultStat>
+    private protected class _MultModFlat : ModFlat<MultStat>
     {
-        internal MultModFlat(FlatStatType flatStatType, float modBase) : base(flatStatType) => Stat = new(modBase);
+        internal _MultModFlat(FlatStatType flatStatType, float modBase) : base(flatStatType) => Stat = new(modBase);
 
         internal override void Start() => TargetStat.ModMult(Stat);
     }
 
 
 
-    private protected class FlatModMult : ModMult<MultStat>
+    private protected class _FlatModMult : ModMult<MultStat>
     {
-        internal FlatModMult(MultStatType multStatType, float modBase) : base(multStatType) => Stat = new(modBase);
+        internal _FlatModMult(MultStatType multStatType, float modBase) : base(multStatType) => Stat = new(modBase);
 
         internal override void Start() => TargetStat.ModFlat(Stat);
     }
 
 
 
-    private protected class MultModMult : ModMult<MultStat>
+    private protected class _MultModMult : ModMult<MultStat>
     {
-        internal MultModMult(MultStatType multStatType, float modBase) : base(multStatType) => Stat = new(modBase);
+        internal _MultModMult(MultStatType multStatType, float modBase) : base(multStatType) => Stat = new(modBase);
 
         internal override void Start() => TargetStat.ModMult(Stat);
     }

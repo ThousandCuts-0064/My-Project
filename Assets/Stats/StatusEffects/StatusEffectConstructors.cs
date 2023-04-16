@@ -4,21 +4,7 @@ using UnityEngine;
 
 public partial class StatusEffect
 {
-    public static StatusEffect FlatMod(FlatStatType flatStatType, float value) => 
-        new StatusEffect()
-        .Add(new FlatModFlat(flatStatType, value));
-
-    public static StatusEffect MultMod(FlatStatType flatStatType, float value) =>
-        new StatusEffect()
-        .Add(new MultModFlat(flatStatType, value));
-
-    public static StatusEffect FlatMod(MultStatType multStatType, float value) =>
-        new StatusEffect()
-        .Add(new FlatModMult(multStatType, value));
-
-    public static StatusEffect MultMod(MultStatType multStatType, float value) =>
-        new StatusEffect()
-        .Add(new MultModMult(multStatType, value));
+    public static StatusEffect New() => new();
 
     public StatusEffect Clone()
     {
@@ -33,5 +19,11 @@ public partial class StatusEffect
         return statusEffect;
     }
 
-    public StatusEffect Timer(float time) => Add(new TimerFinisher(time));
+    public StatusEffect FlatMod(FlatStatType flatStatType, float value) => Add(new _FlatModFlat(flatStatType, value));
+    public StatusEffect FlatMod(MultStatType multStatType, float value) => Add(new _FlatModMult(multStatType, value));
+    public StatusEffect MultMod(FlatStatType flatStatType, float value) => Add(new _MultModFlat(flatStatType, value));
+    public StatusEffect MultMod(MultStatType multStatType, float value) => Add(new _MultModMult(multStatType, value));
+    public StatusEffect Breathing(Element element, float value, out FlatStat flatStat) => Add(new _Breathing(element, value, out flatStat));
+
+    public StatusEffect Timer(float time) => Add(new _Timer(time));
 }

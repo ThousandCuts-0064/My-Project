@@ -13,13 +13,11 @@ public class UIStats : MonoBehaviour
         _panels = transform.Find("Panels").gameObject;
     }
 
-    private IEnumerator Start()
+    private void Start()
     {
-        yield return new WaitForEndOfFrame();
-        GetComponent<VerticalLayoutGroup>().enabled = false;
-        _panels.SetActive(false);
-        gameObject.SetActive(false);
+        GetComponent<VerticalLayoutGroup>();
+        //_panels.SetActive(false);
     }
 
-    public void PanelsSetActive(bool value) => _panels.SetActive(value);
+    public void PanelsSetVisible(bool value) => _panels.SetActive(value);
 }

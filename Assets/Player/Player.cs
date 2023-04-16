@@ -40,12 +40,12 @@ public class Player : NetworkBehaviour
             if (Cursor.lockState == CursorLockMode.Locked)
             {
                 Cursor.lockState = CursorLockMode.None;
-                _uiCharacter.PanelsSetActive(true);
+                _uiCharacter.PanelsSetVisible(true);
             }
             else
             {
                 Cursor.lockState = CursorLockMode.Locked;
-                _uiCharacter.PanelsSetActive(false);
+                _uiCharacter.PanelsSetVisible(false);
             }
         }
 

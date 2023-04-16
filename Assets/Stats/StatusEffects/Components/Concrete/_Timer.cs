@@ -4,13 +4,13 @@ using UnityEngine;
 
 public partial class StatusEffect
 {
-    private protected class TimerFinisher : Finisher
+    private protected class _Timer : Finisher
     {
         private float _time;
 
-        public TimerFinisher(float time) => _time = time;
+        public _Timer(float time) => _time = time;
 
-        internal override Component Clone() => new TimerFinisher(_time);
+        internal override Component Clone() => new _Timer(_time);
 
         internal override bool TryInitialize(Stats stats) => true;
 
