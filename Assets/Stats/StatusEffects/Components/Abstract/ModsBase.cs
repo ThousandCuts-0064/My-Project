@@ -8,8 +8,8 @@ public partial class StatusEffect
     where TOwned : Stat
     where TTarget : Stat
     {
-        public TOwned Stat { get; protected set; }
-        public TTarget TargetStat { get; protected set; }
+        protected TOwned Stat { get; set; }
+        protected TTarget TargetStat { get; set; }
 
         internal override Component Clone() => this;
 
@@ -21,13 +21,13 @@ public partial class StatusEffect
     private protected abstract class ModFlat<TOwned> : Mod<TOwned, FlatStat>
     where TOwned : Stat
     {
-        public FlatStatType FlatStatType { get; set; }
+        private readonly FlatStatType _flatStatType;
 
-        internal ModFlat(FlatStatType flatStatType) => FlatStatType = flatStatType;
+        internal ModFlat(FlatStatType flatStatType) => _flatStatType = flatStatType;
 
         internal override bool TryInitialize(Stats stats)
         {
-            if (!stats.TryGetStat(FlatStatType, out FlatStat flatStat))
+            if (!stats.TryGetStat(_flatStatType, out FlatStat flatStat))
                 return false;
 
             TargetStat = flatStat;
@@ -40,13 +40,13 @@ public partial class StatusEffect
     private protected abstract class ModMult<TOwned> : Mod<TOwned, MultStat>
     where TOwned : Stat
     {
-        public MultStatType MultStatType { get; set; }
+        private readonly MultStatType _multStatType;
 
-        internal ModMult(MultStatType multStatType) => MultStatType = multStatType;
+        internal ModMult(MultStatType multStatType) => _multStatType = multStatType;
 
         internal override bool TryInitialize(Stats stats)
         {
-            if (!stats.TryGetStat(MultStatType, out MultStat multStat))
+            if (!stats.TryGetStat(_multStatType, out MultStat multStat))
                 return false;
 
             TargetStat = multStat;

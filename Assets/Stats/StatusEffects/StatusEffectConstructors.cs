@@ -2,13 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[type: System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Nested classes begin with '_'")]
 public partial class StatusEffect
 {
-    public static StatusEffect New() => new();
+    public static StatusEffect New(string name) => new(name);
 
     public StatusEffect Clone()
     {
-        StatusEffect statusEffect = new();
+        StatusEffect statusEffect = new(_name);
 
         foreach (var component in _components)
             statusEffect.Add(component.Clone());

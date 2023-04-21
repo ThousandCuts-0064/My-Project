@@ -9,7 +9,6 @@ using UnityEngine;
 internal class Resource : IReadOnlyResource
 {
 #if UNITY_EDITOR
-    [SuppressMessage("CodeQuality", "IDE0052:Remove unread private members", Justification = "Used for serialization")]
     [SerializeField, HideInInspector] private string _name;
 #endif
     [SerializeField] private FlatStat _max;

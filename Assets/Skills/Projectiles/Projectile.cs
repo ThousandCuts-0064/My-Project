@@ -14,7 +14,7 @@ public class Projectile : NetworkBehaviour
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody>();
-        StatusEffect = StatusEffect.New().MultMod(FlatStatType.MovementSpeed, 0.8f).Timer(3);
+        StatusEffect = StatusEffect.New("Slow").MultMod(FlatStatType.MovementSpeed, 0.8f).Timer(3);
     }
 
     private void Start()

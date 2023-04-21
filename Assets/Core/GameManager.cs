@@ -4,25 +4,22 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
+[ExecuteAlways]
 public class GameManager : MonoBehaviour
 {
 #if UNITY_EDITOR
     private static readonly List<(string text, Action action)> _buttons = new();
 #endif
+    public static event Action EditorUpdateEvent;
     public static event Action UpdateEvent;
     public static event Action FixedUpdateEvent;
 
-    [field: SerializeField] public GameObject[] ForceAwakes { get; private set; }
-
-    private void Awake()
-    {
-        for (int i = 0; i < ForceAwakes.Length; i++)
-            ForceAwakes[i].SetActive(true);
-    }
-
     private void Update()
     {
-        UpdateEvent?.Invoke();
+        if (Application.IsPlaying(gameObject))
+            UpdateEvent?.Invoke();
+        else
+            EditorUpdateEvent?.Invoke();
     }
 
     private void FixedUpdate()

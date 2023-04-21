@@ -2,7 +2,9 @@
     "name": "UI",
     "rootNamespace": "",
     "references": [
-        "Stats"
+        "Stats",
+        "Core",
+        "Elements"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

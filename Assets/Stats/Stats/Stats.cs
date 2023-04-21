@@ -10,25 +10,24 @@ using System.Reflection;
 [DisallowMultipleComponent]
 public class Stats : NetworkBehaviour, IReadOnlyStats
 {
-    [SerializeReference] private List<Resource> _externals;
-    [SerializeReference] private List<Resource> _internals;
     [SerializeReference] private List<Resource> _embedded;
+    [SerializeReference] private List<Resource> _internals;
+    [SerializeReference] private List<Resource> _externals;
     [SerializeReference] private List<StatusEffect> _statusEffects;
     //[SerializeReference] private List<StatusEffect> _temporaryStatusEffects;
 
-    internal IReadOnlyList<Resource> ExternalsInternal => _externals;
-    internal IReadOnlyList<Resource> InternalsInternal => _internals;
     internal IReadOnlyList<Resource> EmbeddedInternal => _embedded;
+    internal IReadOnlyList<Resource> InternalsInternal => _internals;
+    internal IReadOnlyList<Resource> ExternalsInternal => _externals;
 
-    public IReadOnlyList<IReadOnlyResource> Externals => _externals;
-    public IReadOnlyList<IReadOnlyResource> Internals => _internals;
     public IReadOnlyList<IReadOnlyResource> Embedded => _embedded;
+    public IReadOnlyList<IReadOnlyResource> Internals => _internals;
+    public IReadOnlyList<IReadOnlyResource> Externals => _externals;
 
     private void Awake()
     {
         foreach (var effect in _statusEffects)
             effect.TryStart(this);
-
         //foreach (var effect in _temporaryStatusEffects)
         //    effect.TryStart(this);
     }
@@ -68,15 +67,15 @@ public class Stats : NetworkBehaviour, IReadOnlyStats
     {
         private static readonly FieldInfo[] _resourceListsField;
         private static readonly string[] _resourceListsName;
-        private static readonly Type[] _statusEffectsType;
-        private static readonly ConstructorInfo[] _statusEffectsConstructorInfo;
-        private static readonly string[] _statusEffectsName;
-        private readonly object[] _temporaryStatusEffectConstructorParameters = new object[1];
-        private int _resourceListIndex;
-        private int _resourceElementIndex;
-        private int _statusEffectIndex;
-        private int _statusEffectElementIndex;
-        private float _statusEffectDuration;
+        //private static readonly Type[] _statusEffectsType;
+        //private static readonly ConstructorInfo[] _statusEffectsConstructorInfo;
+        //private static readonly string[] _statusEffectsName;
+        //private readonly object[] _temporaryStatusEffectConstructorParameters = new object[1];
+         private int _resourceListIndex;
+         private int _resourceElementIndex;
+        //private int _statusEffectIndex;
+        //private int _statusEffectElementIndex;
+        //private float _statusEffectDuration;
 
         static Editor()
         {
@@ -89,18 +88,18 @@ public class Stats : NetworkBehaviour, IReadOnlyStats
                 .Select(f => char.ToUpper(f.Name[1]) + f.Name[2..])
                 .ToArray();
 
-            _statusEffectsType = typeof(StatusEffect).Assembly
-                .GetTypes()
-                .Where(t => !t.IsAbstract && t.IsSubclassOf(typeof(StatusEffect)))
-                .ToArray();
+            //_statusEffectsType = typeof(StatusEffect).Assembly
+            //    .GetTypes()
+            //    .Where(t => !t.IsAbstract && t.IsSubclassOf(typeof(StatusEffect)))
+            //    .ToArray();
 
             //_statusEffectsConstructorInfo = _statusEffectsType
             //    .Select(t => t.GetConstructors().Single())
             //    .ToArray();
 
-            _statusEffectsName = _statusEffectsType
-                .Select(t => t.Name)
-                .ToArray();
+            //_statusEffectsName = _statusEffectsType
+            //    .Select(t => t.Name)
+            //    .ToArray();
         }
 
         public override void OnInspectorGUI()
@@ -120,7 +119,6 @@ public class Stats : NetworkBehaviour, IReadOnlyStats
             }
             GUILayout.EndHorizontal();
 
-            return;
             //GUILayout.BeginHorizontal();
             //GUILayout.Label("New " + nameof(StatusEffect) + ":", EditorStyles.boldLabel, GUILayout.ExpandWidth(false));
             //_statusEffectIndex = EditorGUILayout.Popup(_statusEffectIndex, _statusEffectsName);

@@ -8,16 +8,15 @@ using UnityEngine;
 public partial class StatusEffect
 {
 #if UNITY_EDITOR
-    [SuppressMessage("CodeQuality", "IDE0052:Remove unread private members", Justification = "Used for serialization")]
     [SerializeField, HideInInspector] private string _name;
 #endif
     private List<Component> _components;
     private List<Finisher> _finishers;
 
-    internal StatusEffect()
+    internal StatusEffect(string name)
     {
 #if UNITY_EDITOR
-        _name = _components?[0].GetType().Name ?? "Error";
+        _name = name;
 #endif
     }
 
