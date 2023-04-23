@@ -8,6 +8,7 @@ public partial class StatusEffect
     {
         internal _FlatModFlat(FlatStatType flatStatType, float modBase) : base(flatStatType) => Stat = new(modBase);
 
+        internal override Component Clone() => new _FlatModFlat(FlatStatType, Stat.Value);
         internal override void Start() => TargetStat.ModFlat(Stat);
     }
 
@@ -17,6 +18,7 @@ public partial class StatusEffect
     {
         internal _MultModFlat(FlatStatType flatStatType, float modBase) : base(flatStatType) => Stat = new(modBase);
 
+        internal override Component Clone() => new _MultModFlat(FlatStatType, Stat.Value);
         internal override void Start() => TargetStat.ModMult(Stat);
     }
 
@@ -26,6 +28,7 @@ public partial class StatusEffect
     {
         internal _FlatModMult(MultStatType multStatType, float modBase) : base(multStatType) => Stat = new(modBase);
 
+        internal override Component Clone() => new _FlatModMult(MultStatType, Stat.Value);
         internal override void Start() => TargetStat.ModFlat(Stat);
     }
 
@@ -35,6 +38,7 @@ public partial class StatusEffect
     {
         internal _MultModMult(MultStatType multStatType, float modBase) : base(multStatType) => Stat = new(modBase);
 
+        internal override Component Clone() => new _MultModMult(MultStatType, Stat.Value);
         internal override void Start() => TargetStat.ModMult(Stat);
     }
 }
