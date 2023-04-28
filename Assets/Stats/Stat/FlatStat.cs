@@ -6,7 +6,9 @@ using UnityEngine;
 [Serializable]
 public sealed class FlatStat : Stat
 {
-    public override float Neutral => 0;
+    public const float NEUTRAL = 0;
+    public override StatType Type => StatType.Flat;
+    public override float Neutral => NEUTRAL;
 
     public FlatStat(float baseValue) : base(baseValue) { }
     private FlatStat() : base() { }

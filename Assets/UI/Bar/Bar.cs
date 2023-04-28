@@ -57,7 +57,7 @@ public class Bar : MonoBehaviour
         private float _oldValue;
         private bool _oldIsVertical;
 
-        private void OnEnable()
+        private void Awake()
         {
             _bar = (Bar)target;
             if (_bar._fill == null)

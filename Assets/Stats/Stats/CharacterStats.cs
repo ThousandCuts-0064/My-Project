@@ -8,9 +8,6 @@ public class CharacterStats : Stats
     [SerializeField] private FlatStat _movementSpeed;
     [SerializeField] private FlatStat _jumpStrength;
 
-    internal FlatStat MovementSpeedInternal => _movementSpeed;
-    internal FlatStat JumpStrengthInternal => _jumpStrength;
-
     public IReadOnlyStat MovementSpeed => MovementSpeed;
     public IReadOnlyStat JumpStrength => JumpStrength;
 
@@ -18,10 +15,10 @@ public class CharacterStats : Stats
     {
         stat = flatStatType switch
         {
-            FlatStatType.MovementSpeed => MovementSpeedInternal,
-            FlatStatType.JumpStrength => JumpStrengthInternal,
+            FlatStatType.MovementSpeed => _movementSpeed,
+            FlatStatType.JumpStrength => _jumpStrength,
             _ => null
         };
-        return stat == null;
+        return stat != null;
     }
 }

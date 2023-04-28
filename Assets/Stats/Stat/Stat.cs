@@ -17,31 +17,43 @@ public abstract class Stat : IReadOnlyStat
     internal const string VALUE_FIELD_NAME = nameof(_value);
     private float _oldBase;
 #endif
-    private HashSet<Stat> _flatMods;
-    private HashSet<Stat> _multMods;
+    private List<Stat> _flatMods;
+    private List<Stat> _multMods;
     private List<Stat> _modTo;
     private bool _modsChanged;
     [SerializeField] private float _value;
     [field: SerializeField] public float Base { get; private set; }
-    public float Value
+    public virtual float Value
     {
         get
         {
-            if (_modsChanged)
-            {
-                Calculate();
-                _modsChanged = false;
-            }
+            if (!_modsChanged)
+                return _value;
+
+            Calculate();
+            _modsChanged = false;
             return _value;
         }
     }
+    public abstract StatType Type { get; }
     public abstract float Neutral { get; }
 
     internal Stat(float baseValue) => Base = baseValue;
     private protected Stat() { }
 
+    public static Stat New(StatType statType, float value) => statType switch
+    {
+        StatType.Flat => new FlatStat(value),
+        StatType.Mult => new MultStat(value),
+
+        _ => throw EnumException.NoneOrNotDefined(nameof(statType), statType),
+    };
+
     public void RemoveFromOthers()
     {
+        if (_modTo is null)
+            return;
+
         foreach (var mod in _modTo)
             if (!_flatMods.Remove(mod))
                 _multMods.Remove(mod);
@@ -50,37 +62,44 @@ public abstract class Stat : IReadOnlyStat
     private protected void ModFlat(Stat stat)
     {
         RegisterMod(stat);
+
+        if (_flatMods is null)
+            _flatMods = new();
+
         _flatMods.Add(stat);
     }
 
     private protected void ModMult(Stat stat)
     {
         RegisterMod(stat);
+
+        if (_multMods is null)
+            _multMods = new();
+
         _multMods.Add(stat);
     }
 
     private void RegisterMod(Stat stat)
     {
         _modsChanged = true;
-        if (_modTo is null)
-        {
-            _flatMods = new();
-            _multMods = new();
-            _modTo = new();
-        }
+
+        if (stat._modTo is null)
+            stat._modTo = new();
+
         stat._modTo.Add(this);
     }
 
     private void Calculate()
     {
         _value = Base;
-        if (_flatMods is null)
-            return;
 
-        foreach (var mod in _flatMods)
-            _value += mod.Value;
-        foreach (var mod in _multMods)
-            _value *= mod.Value;
+        if (_flatMods is not null)
+            foreach (var mod in _flatMods)
+                _value += mod.Value;
+
+        if (_multMods is not null)
+            foreach (var mod in _multMods)
+                _value *= mod.Value;
     }
 
 #if UNITY_EDITOR

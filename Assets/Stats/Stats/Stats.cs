@@ -32,17 +32,16 @@ public class Stats : NetworkBehaviour, IReadOnlyStats
         //    effect.TryStart(this);
     }
 
-    public virtual bool TryApplyStatusEffect(StatusEffect statusEffect)
+    private protected virtual List<Resource> Get(ResourceLayer resourceLayer) => resourceLayer switch
     {
-        if (!statusEffect.TryStart(this))
-            return false;
+        ResourceLayer.Embedded => _embedded,
+        ResourceLayer.Internal => _internals,
+        ResourceLayer.External => _externals,
 
-        //(statusEffect is TemporaryEffect
-        //    ? _temporaryStatusEffects
-        //    : _statusEffects)
-        _statusEffects.Add(statusEffect);
-        return true;
-    }
+        _ => throw EnumException.NoneOrNotDefined(nameof(resourceLayer), resourceLayer)
+    };
+
+    internal virtual IReadOnlyList<Resource> GetInternal(ResourceLayer resourceLayer) => Get(resourceLayer);
 
     internal virtual bool TryGetStat(FlatStatType flatStatType, out FlatStat stat)
     {
@@ -56,7 +55,19 @@ public class Stats : NetworkBehaviour, IReadOnlyStats
         return true;
     }
 
-    public void TakeDamage(Element element, float damage)
+    public virtual bool TryApply(StatusEffect statusEffect)
+    {
+        if (!statusEffect.TryStart(this))
+            return false;
+
+        //(statusEffect is TemporaryEffect
+        //    ? _temporaryStatusEffects
+        //    : _statusEffects)
+        _statusEffects.Add(statusEffect);
+        return true;
+    }
+
+    public void Take(Element element, float amount)
     {
 
     }
@@ -65,88 +76,250 @@ public class Stats : NetworkBehaviour, IReadOnlyStats
     [CustomEditor(typeof(Stats), true)]
     private class Editor : UnityEditor.Editor
     {
-        private static readonly FieldInfo[] _resourceListsField;
-        private static readonly string[] _resourceListsName;
-        //private static readonly Type[] _statusEffectsType;
-        //private static readonly ConstructorInfo[] _statusEffectsConstructorInfo;
-        //private static readonly string[] _statusEffectsName;
-        //private readonly object[] _temporaryStatusEffectConstructorParameters = new object[1];
-         private int _resourceListIndex;
-         private int _resourceElementIndex;
-        //private int _statusEffectIndex;
-        //private int _statusEffectElementIndex;
-        //private float _statusEffectDuration;
+        private readonly StatusEffectBuilder _statusEffectBuilder = new();
+        private Stats _stats;
+        private ResourceLayer _resourceLayer;
+        private Element _resourceElement;
 
-        static Editor()
+        private void Awake()
         {
-            _resourceListsField = typeof(Stats)
-                .GetFields(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-                .Where(f => typeof(ICollection<Resource>).IsAssignableFrom(f.FieldType))
-                .ToArray();
-
-            _resourceListsName = _resourceListsField
-                .Select(f => char.ToUpper(f.Name[1]) + f.Name[2..])
-                .ToArray();
-
-            //_statusEffectsType = typeof(StatusEffect).Assembly
-            //    .GetTypes()
-            //    .Where(t => !t.IsAbstract && t.IsSubclassOf(typeof(StatusEffect)))
-            //    .ToArray();
-
-            //_statusEffectsConstructorInfo = _statusEffectsType
-            //    .Select(t => t.GetConstructors().Single())
-            //    .ToArray();
-
-            //_statusEffectsName = _statusEffectsType
-            //    .Select(t => t.Name)
-            //    .ToArray();
+            _stats = (Stats)target;
+            _statusEffectBuilder.Finished += statusEffect => _stats.TryApply(statusEffect);
         }
 
         public override void OnInspectorGUI()
         {
             base.OnInspectorGUI();
-            Stats stats = (Stats)target;
+            GUILayout.Label("\n");
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.Label("New " + nameof(Resource) + ":", EditorStyles.boldLabel);
+            _resourceLayer = (ResourceLayer)EditorGUILayout.EnumPopup(_resourceLayer);
+            _resourceElement = (Element)EditorGUILayout.EnumPopup(_resourceElement);
+            EditorGUILayout.EndHorizontal();
+
+            if (_resourceElement != Element.None)
+            {
+                _stats.Get(_resourceLayer).Add(new Resource(_resourceElement));
+                _resourceElement = Element.None;
+            }
 
             GUILayout.Label("\n");
-            GUILayout.BeginHorizontal();
-            GUILayout.Label("New " + nameof(Resource) + ":", EditorStyles.boldLabel);
-            _resourceListIndex = EditorGUILayout.Popup(_resourceListIndex, _resourceListsName);
-            _resourceElementIndex = EditorGUILayout.Popup(_resourceElementIndex, Enum.GetNames(typeof(Element)));
-            if (_resourceElementIndex != 0)
-            {
-                ((ICollection<Resource>)_resourceListsField[_resourceListIndex].GetValue(stats)).Add(new Resource((Element)_resourceElementIndex));
-                _resourceElementIndex = 0;
-            }
-            GUILayout.EndHorizontal();
-
-            //GUILayout.BeginHorizontal();
-            //GUILayout.Label("New " + nameof(StatusEffect) + ":", EditorStyles.boldLabel, GUILayout.ExpandWidth(false));
-            //_statusEffectIndex = EditorGUILayout.Popup(_statusEffectIndex, _statusEffectsName);
-            //Type selectedType = _statusEffectsType[_statusEffectIndex];
-            //bool isElemental = selectedType.GetInterfaces().Contains(typeof(IElementalStatusEffect));
-            //bool isTemporary = selectedType.IsSubclassOf(typeof(TemporaryEffect));
-            //_statusEffectElementIndex = isElemental ? EditorGUILayout.Popup(_statusEffectElementIndex, Enum.GetNames(typeof(Element))) : 0;
-            //var old = _statusEffectDuration;
-            //_statusEffectDuration = isTemporary ? EditorGUILayout.FloatField(_statusEffectDuration) : 0;
-            //if (old != _statusEffectDuration)
-            //    _temporaryStatusEffectConstructorParameters[0] = _statusEffectDuration;
-
-            //if (GUILayout.Button("Add"))
-            //{
-            //    StatusEffect statusEffect = (StatusEffect)_statusEffectsConstructorInfo[_statusEffectIndex]
-            //        .Invoke(isTemporary ? _temporaryStatusEffectConstructorParameters : null);
-
-            //    if (statusEffect is IElementalStatusEffect elemental)
-            //        elemental.Element = (Element)_statusEffectElementIndex;
-
-            //    (isTemporary
-            //        ? stats._temporaryStatusEffects
-            //        : stats._statusEffects)
-            //        .Add(statusEffect);
-            //}
-
-            //GUILayout.EndHorizontal();
+            _statusEffectBuilder.OnInspectorGUI();
         }
-    }
+
+        private class StatusEffectBuilder
+        {
+            private static readonly MethodInfo[] _methods;
+            private static readonly string[] _methodsSelfAndParamsName;
+
+            private ParameterInfo[] _methodParamsInfo;
+            private object[] _methodParams;
+            private MethodInfo _methodInfo;
+            private int _methodIndex = -1;
+            private int _methodIndexOld = -1;
+
+            private StatusEffect _statusEffect;
+            private StatusEffectComponent _statusEffectComponent;
+
+            public event Action<StatusEffect> Finished;
+
+            static StatusEffectBuilder()
+            {
+                _methods = typeof(StatusEffectPresets)
+               .GetMethods(BindingFlags.Public | BindingFlags.Static)
+               .ToArray();
+
+                _methodsSelfAndParamsName = _methods
+                    .Select(m => $"{m.Name}({string.Join(", ", m.GetParameters().Select(p => p.Name))})")
+                    .ToArray();
+            }
+
+            public void OnInspectorGUI()
+            {
+                EditorStyles.label.fontStyle = FontStyle.Bold;
+                _methodIndex = EditorGUILayout.Popup("New " + nameof(StatusEffect) + ":", _methodIndex, _methodsSelfAndParamsName);
+                EditorStyles.label.fontStyle = FontStyle.Normal;
+
+                if (_methodIndexOld != _methodIndex)
+                {
+                    _methodInfo = _methods[_methodIndex];
+                    _methodParamsInfo = _methodInfo.GetParameters();
+                    _methodParams = new object[_methodParamsInfo.Length];
+                    _methodIndexOld = _methodIndex;
+                }
+
+                if (_methodIndex != -1)
+                {
+                    for (int i = 0; i < _methodParamsInfo.Length; i++)
+                    {
+                        ParameterInfo param = _methodParamsInfo[i];
+                        if (param.IsOut)
+                            continue;
+
+                        EditorGUILayout.BeginHorizontal();
+                        _methodParams[i] = param.ParameterType.IsEnum
+                            ? EditorGUILayout.EnumPopup(param.Name, (Enum)(_methodParams[i] ?? Enum.ToObject(param.ParameterType, 0)))
+                            : (Type.GetTypeCode(param.ParameterType) switch
+                            {
+                                TypeCode.Int32 => EditorGUILayout.IntField(param.Name, (int)(_methodParams[i] ?? 0)),
+                                TypeCode.Single => EditorGUILayout.FloatField(param.Name, (float)(_methodParams[i] ?? 0f)),
+
+                                _ => throw new NotImplementedException()
+                            });
+                        EditorGUILayout.EndHorizontal();
+                    }
+
+                    if (_statusEffectComponent is null)
+                    {
+                        EditorGUILayout.BeginHorizontal();
+                        if (GUILayout.Button("Cancel"))
+                            Reset();
+
+                        if (GUILayout.Button("New Component"))
+                        {
+                            _statusEffect = (StatusEffect)_methodInfo.Invoke(null, _methodParams);
+                            _statusEffectComponent = new StatusEffectComponent(_statusEffect);
+                            _statusEffectComponent.Finished += OnFinish;
+                            _statusEffectComponent.Cancel += () =>
+                            {
+                                if (_statusEffectComponent is null)
+                                    Reset();
+                                else
+                                    _statusEffectComponent = null;
+                            };
+                        }
+                        if (GUILayout.Button("Finish"))
+                        {
+                            _statusEffect = (StatusEffect)_methodInfo.Invoke(null, _methodParams);
+                            OnFinish();
+                        }
+                        EditorGUILayout.EndHorizontal();
+
+                        void OnFinish()
+                        {
+                            Finished?.Invoke(_statusEffect);
+                            Reset();
+                        }
+
+                        void Reset()
+                        {
+                            _methodIndex = -1;
+                            _methodIndexOld = -1;
+                            _statusEffectComponent = null;
+                        }
+                    }
+                    else
+                    {
+                        EditorGUILayout.Space();
+                        _statusEffectComponent.OnInspectorGUI();
+                    }
+                }
+            }
+
+            class StatusEffectComponent
+            {
+                private static readonly MethodInfo[] _methods;
+                private static readonly string[] _methodsSelfAndParamsName;
+
+                private readonly StatusEffect _statusEffect;
+
+                private ParameterInfo[] _methodParamsInfo;
+                private object[] _methodParams;
+                private MethodInfo _methodInfo;
+                private int _methodIndex = -1;
+                private int _methodIndexOld = -1;
+
+                private StatusEffectComponent _statusEffectComponent;
+
+                public event Action Finished;
+                public event Action Cancel;
+
+                static StatusEffectComponent()
+                {
+                    _methods = typeof(StatusEffect)
+                        .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+                        .Where(m => !m.IsSpecialName && m.Name != nameof(StatusEffect.Clone))
+                        .ToArray();
+
+                    _methodsSelfAndParamsName = _methods
+                        .Select(m => $"{m.Name}({string.Join(", ", m.GetParameters().Select(p => p.Name))})")
+                        .ToArray();
+                }
+
+                public StatusEffectComponent(StatusEffect statusEffect) =>
+                    _statusEffect = statusEffect;
+
+                public void OnInspectorGUI()
+                {
+                    EditorStyles.label.fontStyle = FontStyle.Bold;
+                    _methodIndex = EditorGUILayout.Popup("New Component:", _methodIndex, _methodsSelfAndParamsName);
+                    EditorStyles.label.fontStyle = FontStyle.Normal;
+
+                    if (_methodIndexOld != _methodIndex)
+                    {
+                        _methodInfo = _methods[_methodIndex];
+                        _methodParamsInfo = _methodInfo.GetParameters();
+                        _methodParams = new object[_methodParamsInfo.Length];
+                        _methodIndexOld = _methodIndex;
+                    }
+
+                    if (_methodIndex != -1)
+                    {
+                        for (int i = 0; i < _methodParamsInfo.Length; i++)
+                        {
+                            ParameterInfo param = _methodParamsInfo[i];
+                            if (param.IsOut)
+                                continue;
+
+                            EditorGUILayout.BeginHorizontal();
+                            _methodParams[i] = param.ParameterType.IsEnum
+                                ? EditorGUILayout.EnumPopup(param.Name, (Enum)(_methodParams[i] ?? Enum.ToObject(param.ParameterType, 0)))
+                                : (Type.GetTypeCode(param.ParameterType) switch
+                                {
+                                    TypeCode.Int32 => EditorGUILayout.IntField(param.Name, (int)(_methodParams[i] ?? 0)),
+                                    TypeCode.Single => EditorGUILayout.FloatField(param.Name, (float)(_methodParams[i] ?? 0f)),
+
+                                    _ => throw new NotImplementedException()
+                                });
+                            EditorGUILayout.EndHorizontal();
+                        }
+                    }
+
+                    if (_statusEffectComponent is null)
+                    {
+                        EditorGUILayout.BeginHorizontal();
+                        if (GUILayout.Button("Cancel"))
+                            Cancel?.Invoke();
+
+                        if (GUILayout.Button("New Component"))
+                        {
+                            _statusEffectComponent = new StatusEffectComponent(_statusEffect);
+                            _statusEffectComponent.Finished += OnFinish;
+                            _statusEffectComponent.Cancel += () => _statusEffectComponent = null;
+                        }
+                        if (GUILayout.Button("Finish"))
+                        {
+                            _methodInfo.Invoke(_statusEffect, _methodParams);
+                            OnFinish();
+                        }
+                        EditorGUILayout.EndHorizontal();
+
+                        void OnFinish()
+                        {
+                            Finished?.Invoke();
+                            _methodIndex = -1;
+                            _methodIndexOld = -1;
+                            _statusEffectComponent = null;
+                        }
+                    }
+                    else
+                    {
+                        EditorGUILayout.Space();
+                        _statusEffectComponent.OnInspectorGUI();
+                    }
+                }
+            }
+        }
 #endif
+    }
 }

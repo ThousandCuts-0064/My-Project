@@ -317,13 +317,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eda9252314b0b0048aca0cde50fa76c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _externals:
-  - rid: 6546092320719896588
-  _internals:
-  - rid: 6546092459986780171
   _embedded:
   - rid: 6546092320719896583
   - rid: 6546092320719896584
+  _internals:
+  - rid: 6546092459986780171
+  _externals:
+  - rid: 6546092320719896588
   _statusEffects: []
   _movementSpeed:
     _value: 1

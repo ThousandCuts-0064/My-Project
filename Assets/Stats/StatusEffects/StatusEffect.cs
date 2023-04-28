@@ -7,18 +7,12 @@ using UnityEngine;
 [Serializable]
 public partial class StatusEffect
 {
-#if UNITY_EDITOR
     [SerializeField, HideInInspector] private string _name;
-#endif
-    private List<Component> _components;
-    private List<Finisher> _finishers;
+    [SerializeReference, HideInInspector] private List<_Component> _components;
+    [SerializeReference, HideInInspector] private List<_Finisher> _finishers;
+    public string Name => _name;
 
-    internal StatusEffect(string name)
-    {
-#if UNITY_EDITOR
-        _name = name;
-#endif
-    }
+    private StatusEffect(string name) => _name = name;
 
     private protected static bool TryFind(IReadOnlyList<Resource> resources, Element element, out Resource resource)
     {
@@ -72,7 +66,7 @@ public partial class StatusEffect
                 finisher.Start();
     }
 
-    private protected StatusEffect Add(Component component)
+    private protected StatusEffect Add(_Component component)
     {
         if (_components is null)
             _components = new();
@@ -81,7 +75,7 @@ public partial class StatusEffect
         return this;
     }
 
-    private protected StatusEffect Add(Finisher finisher)
+    private protected StatusEffect Add(_Finisher finisher)
     {
         if (_finishers is null)
             _finishers = new();

@@ -14,7 +14,7 @@ public class Projectile : NetworkBehaviour
     private void Awake()
     {
         _rigidbody = GetComponent<Rigidbody>();
-        StatusEffect = StatusEffect.New("Slow").MultMod(FlatStatType.MovementSpeed, 0.8f).Timer(3);
+        StatusEffect = StatusEffectPresets.Mod(FlatStatType.MovementSpeed, StatType.Mult, 0.8f).Timer(3);
     }
 
     private void Start()
@@ -38,7 +38,7 @@ public class Projectile : NetworkBehaviour
             || !collision.gameObject.TryGetComponent(out Stats stats))
             return;
 
-        stats.TakeDamage(Element.Fire, 10);
-        stats.TryApplyStatusEffect(StatusEffect.Clone());
+        stats.Take(Element.Fire, -10);
+        stats.TryApply(StatusEffect.Clone());
     }
 }

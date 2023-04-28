@@ -1,10 +1,12 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public partial class StatusEffect
 {
-    private protected abstract class Mod<TOwned, TTarget> : Component
+    [Serializable]
+    private protected abstract class _Mod<TOwned, TTarget> : _Component
     where TOwned : Stat
     where TTarget : Stat
     {
@@ -16,12 +18,13 @@ public partial class StatusEffect
 
 
 
-    private protected abstract class ModFlat<TOwned> : Mod<TOwned, FlatStat>
+    [Serializable]
+    private protected abstract class _ModFlat<TOwned> : _Mod<TOwned, FlatStat>
     where TOwned : Stat
     {
         protected FlatStatType FlatStatType { get; }
 
-        internal ModFlat(FlatStatType flatStatType) => FlatStatType = flatStatType;
+        internal _ModFlat(FlatStatType flatStatType) => FlatStatType = flatStatType;
 
         internal override bool TryInitialize(Stats stats)
         {
@@ -35,12 +38,13 @@ public partial class StatusEffect
 
 
 
-    private protected abstract class ModMult<TOwned> : Mod<TOwned, MultStat>
+    [Serializable]
+    private protected abstract class _ModMult<TOwned> : _Mod<TOwned, MultStat>
     where TOwned : Stat
     {
         protected MultStatType MultStatType { get; }
 
-        internal ModMult(MultStatType multStatType) => MultStatType = multStatType;
+        internal _ModMult(MultStatType multStatType) => MultStatType = multStatType;
 
         internal override bool TryInitialize(Stats stats)
         {
