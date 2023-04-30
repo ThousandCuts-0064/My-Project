@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 
+[type: System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Nested concrete classes begin with '_'")]
 [Serializable]
 public partial class StatusEffect
 {
@@ -25,6 +26,20 @@ public partial class StatusEffect
 
         resource = null;
         return false;
+    }
+
+    public StatusEffect Clone()
+    {
+        StatusEffect statusEffect = new(Name);
+
+        foreach (var component in _components)
+            statusEffect.Add(component.Clone());
+
+        if (_finishers != null)
+            foreach (var finisher in _finishers)
+                statusEffect.Add(finisher.Clone());
+
+        return statusEffect;
     }
 
     internal bool TryStart(Stats stats)

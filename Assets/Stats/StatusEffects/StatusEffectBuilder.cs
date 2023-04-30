@@ -2,23 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[type: System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Nested concrete classes begin with '_'")]
 public partial class StatusEffect
 {
     public static StatusEffect New(string name) => new(name);
-
-    public StatusEffect Clone()
-    {
-        StatusEffect statusEffect = new(Name);
-
-        foreach (var component in _components)
-            statusEffect.Add(component.Clone());
-
-        foreach (var finisher in _finishers)
-            statusEffect.Add(finisher.Clone());
-
-        return statusEffect;
-    }
 
     public StatusEffect Mod(FlatStatType flatStatType, StatType modType, float value) => modType switch
     {
