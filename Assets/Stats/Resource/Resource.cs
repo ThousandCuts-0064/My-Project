@@ -79,7 +79,7 @@ internal class Resource : IReadOnlyResource
                 position,
                 Enum.Parse<Element>(name.stringValue).GetColor(),
                 current.floatValue / maxValue.floatValue,
-                Utility.ClearedStringBuilder
+                Utility.ClearStringBuilder
                     .Append(name.stringValue)
                     .Append(" (")
                     .Append(current.floatValue)

@@ -8,9 +8,9 @@ using UnityEngine;
 [Serializable]
 public partial class StatusEffect
 {
-    [SerializeField, HideInInspector] private string _name;
     [SerializeReference, HideInInspector] private List<_Component> _components;
     [SerializeReference, HideInInspector] private List<_Finisher> _finishers;
+    [SerializeField, HideInInspector] private string _name;
     public string Name => _name;
 
     private StatusEffect(string name) => _name = name;

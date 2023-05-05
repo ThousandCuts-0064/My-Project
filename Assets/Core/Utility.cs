@@ -7,9 +7,9 @@ using UnityEngine;
 public static class Utility
 {
     private static readonly StringBuilder _stringBuilder = new();
-    public static StringBuilder ClearedStringBuilder => _stringBuilder.Clear();
+    public static StringBuilder ClearStringBuilder => _stringBuilder.Clear();
 
-    public static string ToBackingField(string name) => ClearedStringBuilder
+    public static string ToBackingField(string name) => ClearStringBuilder
         .Append("<")
         .Append(name)
         .Append(">k__BackingField")

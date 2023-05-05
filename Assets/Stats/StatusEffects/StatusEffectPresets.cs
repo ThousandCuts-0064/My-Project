@@ -5,12 +5,14 @@ using UnityEngine;
 
 public static class StatusEffectPresets
 {
-    public static StatusEffect Mod(FlatStatType flatStatType, StatType modType, float value) =>
-        StatusEffect.New(GetName(flatStatType, modType, value))
+    public static IFinishers Mod(FlatStatType flatStatType, StatType modType, float value) =>
+        StatusEffect.Builder.ClearSingleton
+        .Name(GetName(flatStatType, modType, value))
         .Mod(flatStatType, modType, value);
 
-    public static StatusEffect Mod(MultStatType multStatType, StatType modType, float value) =>
-         StatusEffect.New(GetName(multStatType, modType, value))
+    public static IFinishers Mod(MultStatType multStatType, StatType modType, float value) =>
+         StatusEffect.Builder.ClearSingleton
+        .Name(GetName(multStatType, modType, value))
          .Mod(multStatType, modType, value);
 
     private static string GetName(FlatStatType flatStatType, StatType modType, float value)

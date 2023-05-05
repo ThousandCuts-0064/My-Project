@@ -118,16 +118,16 @@ public class Stats : NetworkBehaviour, IReadOnlyStats
             private int _methodIndex = -1;
             private int _methodIndexOld = -1;
 
-            private StatusEffect _statusEffect;
-            private StatusEffectComponent _statusEffectComponent;
+            private StatusEffect.Builder _statusEffectBuilder;
+            private StatusEffectFinisher _statusEffectFinisher;
 
             public event Action<StatusEffect> Finished;
 
             static StatusEffectBuilder()
             {
                 _methods = typeof(StatusEffectPresets)
-               .GetMethods(BindingFlags.Public | BindingFlags.Static)
-               .ToArray();
+                    .GetMethods(BindingFlags.Public | BindingFlags.Static)
+                    .ToArray();
 
                 _methodsSelfAndParamsName = _methods
                     .Select(m => $"{m.Name}({string.Join(", ", m.GetParameters().Select(p => p.Name))})")
@@ -146,6 +146,11 @@ public class Stats : NetworkBehaviour, IReadOnlyStats
                     _methodParamsInfo = _methodInfo.GetParameters();
                     _methodParams = new object[_methodParamsInfo.Length];
                     _methodIndexOld = _methodIndex;
+
+                    _statusEffectBuilder = (StatusEffect.Builder)_methodInfo.Invoke(null, _methodParams);
+                    _statusEffectFinisher = new StatusEffectFinisher(_statusEffectBuilder);
+                    _statusEffectFinisher.Finished += OnFinish;
+                    _statusEffectFinisher.Cancel += Reset;
                 }
 
                 if (_methodIndex != -1)
@@ -169,59 +174,44 @@ public class Stats : NetworkBehaviour, IReadOnlyStats
                         EditorGUILayout.EndHorizontal();
                     }
 
-                    if (_statusEffectComponent is null)
-                    {
-                        EditorGUILayout.BeginHorizontal();
-                        if (GUILayout.Button("Cancel"))
-                            Reset();
+                    //if (_statusEffectFinisher is null)
+                    //{
+                    //    EditorGUILayout.BeginHorizontal();
+                    //    if (GUILayout.Button("Cancel"))
+                    //        Reset();
 
-                        if (GUILayout.Button("New Component"))
-                        {
-                            _statusEffect = (StatusEffect)_methodInfo.Invoke(null, _methodParams);
-                            _statusEffectComponent = new StatusEffectComponent(_statusEffect);
-                            _statusEffectComponent.Finished += OnFinish;
-                            _statusEffectComponent.Cancel += () =>
-                            {
-                                if (_statusEffectComponent is null)
-                                    Reset();
-                                else
-                                    _statusEffectComponent = null;
-                            };
-                        }
-                        if (GUILayout.Button("Finish"))
-                        {
-                            _statusEffect = (StatusEffect)_methodInfo.Invoke(null, _methodParams);
-                            OnFinish();
-                        }
-                        EditorGUILayout.EndHorizontal();
-
-                        void OnFinish()
-                        {
-                            Finished?.Invoke(_statusEffect);
-                            Reset();
-                        }
-
-                        void Reset()
-                        {
-                            _methodIndex = -1;
-                            _methodIndexOld = -1;
-                            _statusEffectComponent = null;
-                        }
-                    }
-                    else
-                    {
-                        EditorGUILayout.Space();
-                        _statusEffectComponent.OnInspectorGUI();
-                    }
+                    //    if (GUILayout.Button("Finish"))
+                    //    {
+                    //        _statusEffectBuilder = (StatusEffect)_methodInfo.Invoke(null, _methodParams);
+                    //        OnFinish();
+                    //    }
+                    //    EditorGUILayout.EndHorizontal();
+                    //}
                 }
+
+                EditorGUILayout.Space();
+                _statusEffectFinisher?.OnInspectorGUI();
             }
 
-            class StatusEffectComponent
+            private void OnFinish(StatusEffect statusEffect)
+            {
+                Finished?.Invoke(statusEffect);
+                Reset();
+            }
+
+            private void Reset()
+            {
+                _methodIndex = -1;
+                _methodIndexOld = -1;
+                _statusEffectFinisher = null;
+            }
+
+            class StatusEffectFinisher
             {
                 private static readonly MethodInfo[] _methods;
                 private static readonly string[] _methodsSelfAndParamsName;
 
-                private readonly StatusEffect _statusEffect;
+                private readonly StatusEffect.Builder _statusEffectBuilder;
 
                 private ParameterInfo[] _methodParamsInfo;
                 private object[] _methodParams;
@@ -229,16 +219,13 @@ public class Stats : NetworkBehaviour, IReadOnlyStats
                 private int _methodIndex = -1;
                 private int _methodIndexOld = -1;
 
-                private StatusEffectComponent _statusEffectComponent;
-
-                public event Action Finished;
+                public event Action<StatusEffect> Finished;
                 public event Action Cancel;
 
-                static StatusEffectComponent()
+                static StatusEffectFinisher()
                 {
-                    _methods = typeof(StatusEffect)
+                    _methods = typeof(IFinishers)
                         .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-                        .Where(m => !m.IsSpecialName && m.Name != nameof(StatusEffect.Clone))
                         .ToArray();
 
                     _methodsSelfAndParamsName = _methods
@@ -246,8 +233,8 @@ public class Stats : NetworkBehaviour, IReadOnlyStats
                         .ToArray();
                 }
 
-                public StatusEffectComponent(StatusEffect statusEffect) =>
-                    _statusEffect = statusEffect;
+                public StatusEffectFinisher(StatusEffect.Builder statusEffectBuilder) =>
+                    _statusEffectBuilder = statusEffectBuilder;
 
                 public void OnInspectorGUI()
                 {
@@ -285,37 +272,21 @@ public class Stats : NetworkBehaviour, IReadOnlyStats
                         }
                     }
 
-                    if (_statusEffectComponent is null)
-                    {
-                        EditorGUILayout.BeginHorizontal();
-                        if (GUILayout.Button("Cancel"))
-                            Cancel?.Invoke();
+                    EditorGUILayout.BeginHorizontal();
 
-                        if (GUILayout.Button("New Component"))
-                        {
-                            _statusEffectComponent = new StatusEffectComponent(_statusEffect);
-                            _statusEffectComponent.Finished += OnFinish;
-                            _statusEffectComponent.Cancel += () => _statusEffectComponent = null;
-                        }
-                        if (GUILayout.Button("Finish"))
-                        {
-                            _methodInfo.Invoke(_statusEffect, _methodParams);
-                            OnFinish();
-                        }
-                        EditorGUILayout.EndHorizontal();
+                    if (GUILayout.Button("Cancel"))
+                        Cancel?.Invoke();
 
-                        void OnFinish()
-                        {
-                            Finished?.Invoke();
-                            _methodIndex = -1;
-                            _methodIndexOld = -1;
-                            _statusEffectComponent = null;
-                        }
-                    }
-                    else
+                    if (GUILayout.Button("Finish"))
+                        OnFinish((StatusEffect)_methodInfo.Invoke(_statusEffectBuilder, _methodParams));
+
+                    EditorGUILayout.EndHorizontal();
+
+                    void OnFinish(StatusEffect statusEffect)
                     {
-                        EditorGUILayout.Space();
-                        _statusEffectComponent.OnInspectorGUI();
+                        Finished?.Invoke(statusEffect);
+                        _methodIndex = -1;
+                        _methodIndexOld = -1;
                     }
                 }
             }
